@@ -79,7 +79,7 @@ const projectSchema = mongoose.Schema({
         type: String,
         default: ""
     },
-    manulaLink: {
+    manualLink: {
         type: String,
         default: ""
     },
