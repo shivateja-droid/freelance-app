@@ -16,12 +16,14 @@ import Admin from './pages/admin/Admin.jsx'
 import AdminProjects from './pages/admin/AdminProjects.jsx'
 import AllApplications from './pages/admin/AllApplications.jsx'
 import AllUsers from './pages/admin/AllUsers.jsx'
+import { Analytics } from '@vercel/analytics/react'
 
 function App() {
 
 
   return (
     <div className="app-shell h-screen overflow-hidden flex flex-col">
+      <Analytics />
       <Navbar />
       <div className="app-backdrop fixed inset-0 -z-10 h-full w-full"></div>
       <main className="flex-1 min-h-0 overflow-hidden">

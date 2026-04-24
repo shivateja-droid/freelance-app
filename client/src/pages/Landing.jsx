@@ -24,7 +24,9 @@ const Landing = () => {
                     <p className='theme-hero-copy text-lg text-center font-bold sm:text-2xl'>Welcome to KaamSetu, a modern freelancing platform that helps clients discover capable talent and gives freelancers a smooth path to meaningful projects.</p>
                     <button onClick={() => navigate('/authenticate')} className='theme-button-primary px-5 py-3 font-bold'>Get Started</button>
                 </div>
-                <img className='theme-card w-full rounded-[1.75rem] object-cover' src="src/images/home.jpg" alt="landing" />
+                <div className='w-full flex justify-center'>
+                <img className='theme-card w-2/3 max-sm:w-full rounded-[1.75rem] object-cover' src="/kaamsetu_icon.png" alt="kaamsetu" />
+                </div>
             </div>
 
         </div>
