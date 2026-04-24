@@ -17,6 +17,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+app.get("/", (req, res) => {
+  res.json({ message: "KaamSetu Backend Live 🚀" });
+});
+
 app.use(express.json({ limit: '30mb' }));
 app.use(express.urlencoded({ limit: '30mb', extended: true }));
 app.use(cors());
@@ -40,6 +44,8 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   SocketHandler(socket);
 });
+
+
 
 const startServer = async () => {
   try {
