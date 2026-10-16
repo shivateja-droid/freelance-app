@@ -6,7 +6,7 @@ export const registerUser = async (req, res) => {
     const user = await registerUserService(req.body);
     return res.status(200).json(user);
   } catch (error) {
-    return handleServiceError(res, error);
+    return handleServiceError(req, res, error);
   }
 };
 
@@ -15,7 +15,7 @@ export const loginUser = async (req, res) => {
     const user = await loginUserService(req.body);
     return res.status(200).json(user);
   } catch (error) {
-    return handleServiceError(res, error);
+    return handleServiceError(req, res, error);
   }
 };
 

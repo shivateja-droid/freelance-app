@@ -2,6 +2,7 @@ import { Chat, Project } from "./Schema.js";
 import { v4 as uuid } from 'uuid';
 import { validateSocketPayload } from './middleware/validateRequest.js';
 import { schemas } from './validation/schemas.js';
+import { logger } from './observability/logger.js';
 
 const socketValidationError = (socket, result) => {
   socket.emit('request-error', {
@@ -38,6 +39,14 @@ const getParticipantProject = async (projectId, user) => {
   return isParticipant ? project : null;
 };
 
+const logSocketAuthorizationDenied = (socket, eventName, projectId) => {
+  logger.warn({ event: 'socket_authorization_denied', eventName, projectId, socketId: socket.id }, 'Socket authorization denied');
+};
+
+const logSocketError = (socket, eventName, error, projectId) => {
+  logger.error({ err: error, event: 'socket_handler_failed', eventName, projectId, socketId: socket.id }, 'Socket handler failed');
+};
+
 const SocketHandler = (socket) => {
   socket.on("join-chat-room", async (payload = {}) => {
     try {
@@ -47,18 +56,18 @@ const SocketHandler = (socket) => {
       const project = await Project.findById(projectId);
 
       if (!project || socket.user.usertype !== 'freelancer' || project.freelancer?.toString() !== socket.user._id.toString()) {
+        logSocketAuthorizationDenied(socket, 'join-chat-room', projectId);
         return;
       }
 
       await socket.join(projectId);
-      console.log(socket.rooms);
 
       socket.broadcast.to(projectId).emit("user-joined-room");
 
       const chat = await ensureChatExists(projectId);
       socket.emit('messages-updated', { chat });
     } catch (error) {
-      console.error('Error joining freelancer chat room:', error);
+      logSocketError(socket, 'join-chat-room', error);
     }
   });
 
@@ -70,18 +79,18 @@ const SocketHandler = (socket) => {
       const project = await Project.findById(projectId);
 
       if (!project || socket.user.usertype !== 'client' || project.client?.toString() !== socket.user._id.toString() || (project.status !== "Assigned" && project.status !== "Completed")) {
+        logSocketAuthorizationDenied(socket, 'join-chat-room-client', projectId);
         return;
       }
 
       await socket.join(projectId);
-      console.log(socket.rooms);
 
       socket.broadcast.to(projectId).emit("user-joined-room");
 
       const chat = await ensureChatExists(projectId);
       socket.emit('messages-updated', { chat });
     } catch (error) {
-      console.error('Error joining client chat room:', error);
+      logSocketError(socket, 'join-chat-room-client', error);
     }
   });
 
@@ -91,13 +100,14 @@ const SocketHandler = (socket) => {
       if (!validation.success) return socketValidationError(socket, validation);
       const { projectId } = validation.data;
       if (!await getParticipantProject(projectId, socket.user)) {
+        logSocketAuthorizationDenied(socket, 'update-messages', projectId);
         return;
       }
 
       const chat = await ensureChatExists(projectId);
       socket.emit('messages-updated', { chat });
     } catch (error) {
-      console.error('Error updating messages:', error);
+      logSocketError(socket, 'update-messages', error);
     }
   });
 
@@ -107,6 +117,7 @@ const SocketHandler = (socket) => {
       if (!validation.success) return socketValidationError(socket, validation);
       const { projectId, message } = validation.data;
       if (!await getParticipantProject(projectId, socket.user)) {
+        logSocketAuthorizationDenied(socket, 'new-message', projectId);
         return;
       }
 
@@ -125,13 +136,14 @@ const SocketHandler = (socket) => {
         },
         {
           new: true,
+          upsert: true,
         },
       );
 
       socket.emit('messages-updated', { chat });
       socket.broadcast.to(projectId).emit('messages-updated', { chat });
     } catch (error) {
-      console.error('Error adding new message:', error);
+      logSocketError(socket, 'new-message', error);
     }
   });
 };

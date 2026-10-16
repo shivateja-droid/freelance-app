@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import { Freelancer, Project } from '../Schema.js';
+import { withLoggedTransaction } from '../observability/transaction.js';
 
 export const fetchProjectByIdService = async (projectId) => {
   return Project.findById(projectId);
@@ -85,9 +85,7 @@ export const approveSubmissionService = async (projectId, client) => {
     throw error;
   }
 
-  const session = await mongoose.startSession();
-  try {
-    await session.withTransaction(async () => {
+  await withLoggedTransaction('approve_submission', async (session) => {
       const completion = await Project.updateOne(
         { _id: project._id, submission: true, submissionAccepted: false },
         { $set: { submissionAccepted: true, status: 'Completed' } },
@@ -99,10 +97,7 @@ export const approveSubmissionService = async (projectId, client) => {
         throw error;
       }
       await Freelancer.updateOne({ _id: freelancer._id }, { $inc: { funds: Number(project.budget) } }, { session });
-    });
-  } finally {
-    await session.endSession();
-  }
+  });
 
   return { message: 'submission approved' };
 };

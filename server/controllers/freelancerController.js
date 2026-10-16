@@ -12,7 +12,7 @@ export const fetchFreelancer = async (req, res) => {
     const freelancer = await fetchFreelancerByUserIdService(req.params.id);
     return res.status(200).json(freelancer);
   } catch (error) {
-    return handleServiceError(res, error);
+    return handleServiceError(req, res, error);
   }
 };
 
@@ -21,6 +21,6 @@ export const updateFreelancer = async (req, res) => {
     const freelancer = await updateFreelancerService(req.body, req.user);
     return res.status(200).json(freelancer);
   } catch (error) {
-    return handleServiceError(res, error);
+    return handleServiceError(req, res, error);
   }
 };

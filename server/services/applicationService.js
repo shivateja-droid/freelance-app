@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
 import { Application, Freelancer, Project, User } from '../Schema.js';
+import { withLoggedTransaction } from '../observability/transaction.js';
 
 export const createBidService = async ({ projectId, proposal, bidAmount, estimatedTime }, freelancerUser) => {
   const [freelancer, project] = await Promise.all([
@@ -20,9 +20,7 @@ export const createBidService = async ({ projectId, proposal, bidAmount, estimat
     throw error;
   }
 
-  const session = await mongoose.startSession();
-  try {
-    await session.withTransaction(async () => {
+  await withLoggedTransaction('create_bid', async (session) => {
       const existingApplication = await Application.exists({
         project: project._id,
         freelancer: freelancerUser._id,
@@ -50,10 +48,7 @@ export const createBidService = async ({ projectId, proposal, bidAmount, estimat
         bidAmount,
         estimatedTime,
       }], { session });
-    });
-  } finally {
-    await session.endSession();
-  }
+  });
 
   return { message: 'bidding successful' };
 };
@@ -82,9 +77,7 @@ const assertApplicationOwner = async (application, client, session) => {
 };
 
 export const approveApplicationService = async (applicationId, client) => {
-  const session = await mongoose.startSession();
-  try {
-    await session.withTransaction(async () => {
+  await withLoggedTransaction('approve_application', async (session) => {
       const application = await Application.findById(applicationId).session(session);
       if (!application) {
         const error = new Error('Application not found');
@@ -132,17 +125,12 @@ export const approveApplicationService = async (applicationId, client) => {
         { $set: { status: 'Rejected' } },
         { session },
       );
-    });
-  } finally {
-    await session.endSession();
-  }
+  });
   return { message: 'Application approved!!' };
 };
 
 export const rejectApplicationService = async (applicationId, client) => {
-  const session = await mongoose.startSession();
-  try {
-    await session.withTransaction(async () => {
+  await withLoggedTransaction('reject_application', async (session) => {
       const application = await Application.findById(applicationId).session(session);
       if (!application) {
         const error = new Error('Application not found');
@@ -156,9 +144,6 @@ export const rejectApplicationService = async (applicationId, client) => {
         throw error;
       }
       await Application.updateOne({ _id: application._id }, { $set: { status: 'Rejected' } }, { session });
-    });
-  } finally {
-    await session.endSession();
-  }
+  });
   return { message: 'Application rejected!!' };
 };

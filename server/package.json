@@ -7,7 +7,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test --test-concurrency=1 test/auth-validation.test.js test/lifecycle.test.js test/chat.test.js test/observability.test.js",
+    "test:watch": "node --test --watch --test-concurrency=1 test/auth-validation.test.js test/lifecycle.test.js test/chat.test.js test/observability.test.js",
+    "docs:check": "node scripts/check-openapi.js",
     "start": "node index.js",
     "dev": "nodemon index.js",
     "db:migrate:relations": "node migrations/20261004-canonical-relations.js",
@@ -30,11 +32,19 @@
     "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.19.1",
+    "pino": "^10.4.0",
+    "pino-http": "^11.0.0",
     "socket.io": "^4.8.1",
     "uuid": "^13.0.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@apidevtools/swagger-parser": "^13.1.0",
+    "mongodb-memory-server": "^11.3.0",
+    "nodemon": "^3.1.10",
+    "pino-pretty": "^13.2.0",
+    "socket.io-client": "^4.8.4",
+    "supertest": "^7.3.1",
+    "swagger-ui-express": "^5.0.1"
   }
 }

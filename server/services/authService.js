@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
 import { Freelancer, User } from '../Schema.js';
+import { withLoggedTransaction } from '../observability/transaction.js';
 
 const getJwtSecret = () => {
   if (!process.env.JWT_SECRET) {
@@ -42,18 +42,13 @@ export const registerUserService = async ({ username, email, password, usertype 
     usertype,
   });
 
-  const session = await mongoose.startSession();
   let user;
-  try {
-    await session.withTransaction(async () => {
+  await withLoggedTransaction('register_user', async (session) => {
       [user] = await User.create([newUser], { session });
       if (usertype === 'freelancer') {
         await Freelancer.create([{ user: user._id }], { session });
       }
-    });
-  } finally {
-    await session.endSession();
-  }
+  });
 
   return createAuthResponse(user);
 };

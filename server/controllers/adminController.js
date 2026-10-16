@@ -6,6 +6,6 @@ export const fetchUsers = async (_req, res) => {
     const users = await fetchUsersService();
     return res.status(200).json(users);
   } catch (error) {
-    return handleServiceError(res, error);
+    return handleServiceError(_req, res, error);
   }
 };

@@ -13,7 +13,7 @@ export const fetchProject = async (req, res) => {
     const project = await fetchProjectByIdService(req.params.id);
     return res.status(200).json(project);
   } catch (error) {
-    return handleServiceError(res, error);
+    return handleServiceError(req, res, error);
   }
 };
 
@@ -22,7 +22,7 @@ export const fetchProjects = async (_req, res) => {
     const projects = await fetchProjectsService();
     return res.status(200).json(projects);
   } catch (error) {
-    return handleServiceError(res, error);
+    return handleServiceError(_req, res, error);
   }
 };
 
@@ -31,7 +31,7 @@ export const createProject = async (req, res) => {
     const result = await createProjectService(req.body, req.user);
     return res.status(200).json(result);
   } catch (error) {
-    return handleServiceError(res, error);
+    return handleServiceError(req, res, error);
   }
 };
 
@@ -40,7 +40,7 @@ export const submitProject = async (req, res) => {
     const result = await submitProjectService(req.body, req.user);
     return res.status(200).json(result);
   } catch (error) {
-    return handleServiceError(res, error);
+    return handleServiceError(req, res, error);
   }
 };
 
@@ -49,7 +49,7 @@ export const approveSubmission = async (req, res) => {
     const result = await approveSubmissionService(req.params.id, req.user);
     return res.status(200).json(result);
   } catch (error) {
-    return handleServiceError(res, error);
+    return handleServiceError(req, res, error);
   }
 };
 
@@ -58,6 +58,6 @@ export const rejectSubmission = async (req, res) => {
     const result = await rejectSubmissionService(req.params.id, req.user);
     return res.status(200).json(result);
   } catch (error) {
-    return handleServiceError(res, error);
+    return handleServiceError(req, res, error);
   }
 };
