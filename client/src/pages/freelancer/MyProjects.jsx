@@ -16,7 +16,7 @@ const Client = () => {
   const fetchProjects = async () => {
     await axios.get(`${BASE_URI}/fetch-projects`).then(
       (response) => {
-        const pros = response.data.filter(pro => pro.freelancerId === localStorage.getItem('userId'));
+        const pros = response.data.filter(pro => pro.freelancer === localStorage.getItem('userId'));
         setProjects(pros);
         setDisplayProjects(pros.reverse());
       }

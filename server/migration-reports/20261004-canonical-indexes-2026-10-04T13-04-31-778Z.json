@@ -1,0 +1,60 @@
+{
+  "migration": "20261004-canonical-indexes",
+  "generatedAt": "2026-10-04T13:04:31.778Z",
+  "mode": "apply",
+  "rollback": {
+    "supported": true,
+    "command": "npm run db:rollback:relation-indexes -- migration-reports/<report-file>.json"
+  },
+  "changes": [
+    {
+      "collection": "freelancers",
+      "drop": {
+        "v": 2,
+        "key": {
+          "user": 1
+        },
+        "name": "user_1",
+        "background": true,
+        "sparse": true
+      },
+      "create": null
+    },
+    {
+      "collection": "applications",
+      "drop": {
+        "v": 2,
+        "key": {
+          "project": 1,
+          "freelancer": 1
+        },
+        "name": "project_1_freelancer_1",
+        "background": true,
+        "unique": true,
+        "partialFilterExpression": {
+          "project": {
+            "$type": "objectId"
+          },
+          "freelancer": {
+            "$type": "objectId"
+          }
+        }
+      },
+      "create": null
+    },
+    {
+      "collection": "chats",
+      "drop": {
+        "v": 2,
+        "key": {
+          "project": 1
+        },
+        "name": "project_1",
+        "background": true,
+        "sparse": true
+      },
+      "create": null
+    }
+  ],
+  "applyStatus": "committed"
+}

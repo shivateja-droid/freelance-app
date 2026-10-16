@@ -8,11 +8,12 @@ const Freelancer = () => {
   const [freelancerdata, setFreelancerdata] = useState();
   const [skills, setSkills] = useState([]);
   const [description, setDescription] = useState("");
-  const [freelancerId, setFreelancerId] = useState("");
   const [updateSkills, setUpdateSkills] = useState("");
   const [updateDescription, setUpdateDescription] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [applicationscount, setApplicationscount] = useState(0);
+  const [currentProjectsCount, setCurrentProjectsCount] = useState(0);
+  const [completedProjectsCount, setCompletedProjectsCount] = useState(0);
   const BASE_URI = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -22,6 +23,7 @@ const Freelancer = () => {
   useEffect(() => {
     document.title = "Freelancer Dashboard - KaamSetu";
     fetchApplications();
+    fetchProjectCounts();
   }, []);
 
   const fetchUserData = async (id) => {
@@ -29,7 +31,6 @@ const Freelancer = () => {
       (response) => {
         setFreelancerdata(response.data);
         if (response.data) {
-          setFreelancerId(response.data._id);
           setSkills(response.data.skills);
           setDescription(response.data.description);
           setUpdateSkills(response.data.skills.join(', '));
@@ -42,7 +43,6 @@ const Freelancer = () => {
   const updateUserData = async () => {
     await axios.post(`${BASE_URI}/update-freelancer`,
       {
-        freelancerId,
         updateSkills: updateSkills,
         description: updateDescription
       }).then(
@@ -60,9 +60,21 @@ const Freelancer = () => {
   const fetchApplications = async () => {
     await axios.get(`${BASE_URI}/fetch-applications`).then(
       (response) => {
-        setApplicationscount(response.data.filter((application) => application.freelancerId === localStorage.getItem('userId')));
+        setApplicationscount(response.data.length);
       }
     ).catch((err) => {
+      console.log(err);
+    });
+  };
+
+  const fetchProjectCounts = async () => {
+    await axios.get(`${BASE_URI}/fetch-projects`).then((response) => {
+      const assignedProjects = response.data.filter(
+        (project) => project.freelancer === localStorage.getItem('userId'),
+      );
+      setCurrentProjectsCount(assignedProjects.filter((project) => project.status === 'Assigned').length);
+      setCompletedProjectsCount(assignedProjects.filter((project) => project.status === 'Completed').length);
+    }).catch((err) => {
       console.log(err);
     });
   };
@@ -71,7 +83,7 @@ const Freelancer = () => {
     <div className='theme-page-shell page-scroll-frame m-3 flex flex-col gap-5 rounded-2xl p-4 sm:m-5 sm:p-5'>
       <div className='grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3'>
         <div className="theme-stat-card w-full rounded-2xl p-6">
-          <h5 className="theme-heading mb-2 text-2xl font-bold tracking-tight">Current Projects : <span>{freelancerdata ? freelancerdata.currentProjects.length : 0}</span></h5>
+          <h5 className="theme-heading mb-2 text-2xl font-bold tracking-tight">Current Projects : <span>{currentProjectsCount}</span></h5>
           <p className="theme-muted-text mb-3 font-normal">Here are the current projects you are working on.</p>
           <button onClick={() => navigate('/my-projects')} className="theme-button-primary inline-flex items-center px-3 py-2 text-sm font-medium">
             View
@@ -81,7 +93,7 @@ const Freelancer = () => {
           </button>
         </div>
         <div className="theme-stat-card w-full rounded-2xl p-6">
-          <h5 className="theme-heading mb-2 text-2xl font-bold tracking-tight">Completed Projects : <span>{freelancerdata ? freelancerdata.completedProjects.length : 0}</span></h5>
+          <h5 className="theme-heading mb-2 text-2xl font-bold tracking-tight">Completed Projects : <span>{completedProjectsCount}</span></h5>
           <p className="theme-muted-text mb-3 font-normal">Here are the completed projects you have worked on.</p>
           <button onClick={() => navigate('/my-projects')} className="theme-button-primary inline-flex items-center px-3 py-2 text-sm font-medium">
             View
@@ -91,7 +103,7 @@ const Freelancer = () => {
           </button>
         </div>
         <div className="theme-stat-card w-full rounded-2xl p-6">
-          <h5 className="theme-heading mb-2 text-2xl font-bold tracking-tight">Applications : <span>{applicationscount.length}</span></h5>
+          <h5 className="theme-heading mb-2 text-2xl font-bold tracking-tight">Applications : <span>{applicationscount}</span></h5>
           <p className="theme-muted-text mb-3 font-normal">Here are the applications you have submitted.</p>
           <button onClick={() => navigate('/myApplications')} className="theme-button-primary inline-flex items-center px-3 py-2 text-sm font-medium">
             View

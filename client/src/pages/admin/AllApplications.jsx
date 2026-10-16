@@ -37,7 +37,7 @@ const AllApplications = () => {
                 <span key={skill} className='theme-chip'>{skill}</span>
               ))}</div>
               <h5><b>Client: </b> {application.clientName}</h5>
-              <h5><b>Client Id: </b> {application.clientId}</h5>
+              <h5><b>Client Id: </b> {application.client}</h5>
               <h5><b>Client email: </b> {application.clientEmail}</h5>
             </div>
             <div className="theme-panel-divider user-application-half flex flex-col gap-2 border-t pt-3 lg:border-l lg:border-t-0 lg:pl-4">
@@ -55,7 +55,7 @@ const AllApplications = () => {
               </span>
               <h6>Proposed Budget - &#8377; {application.bidAmount}</h6>
               <h5><b>Freelancer: </b> {application.freelancerName}</h5>
-              <h5><b>Freelancer Id: </b> {application.freelancerId}</h5>
+              <h5><b>Freelancer Id: </b> {application.freelancer}</h5>
               <h5><b>Freelancer email: </b> {application.freelancerEmail}</h5>
               <h6>Status: <b className={application.status === "Accepted" ? "theme-status-complete" : ""}>{application.status}</b></h6>
             </div>

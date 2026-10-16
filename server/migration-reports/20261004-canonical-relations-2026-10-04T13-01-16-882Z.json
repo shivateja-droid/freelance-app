@@ -1,0 +1,235 @@
+{
+  "migration": "20261004-canonical-relations",
+  "generatedAt": "2026-10-04T13:01:16.881Z",
+  "mode": "apply",
+  "rollback": {
+    "supported": true,
+    "command": "npm run db:rollback:relations -- migration-reports/<report-file>.json"
+  },
+  "counts": {
+    "users": 7,
+    "freelancers": 3,
+    "projects": 8,
+    "applications": 7,
+    "chats": 6
+  },
+  "changes": [
+    {
+      "model": "Application",
+      "documentId": "68eb9ad533899b6bf9e65321",
+      "before": {
+        "project": {
+          "exists": true,
+          "value": "68eb9a2933899b6bf9e65301"
+        },
+        "client": {
+          "exists": true,
+          "value": "68e93bfe8d720de91ed8ccd8"
+        },
+        "freelancer": {
+          "exists": true,
+          "value": "68ea9a4033899b6bf9e65094"
+        }
+      },
+      "after": {
+        "project": "68eb9a2933899b6bf9e65301",
+        "client": "68e93bfe8d720de91ed8ccd8",
+        "freelancer": "68ea9a4033899b6bf9e65094"
+      }
+    },
+    {
+      "model": "Application",
+      "documentId": "69e7bbd98cfbf90c261d4780",
+      "before": {
+        "project": {
+          "exists": true,
+          "value": "69e6440945936c4be2f5d39a"
+        },
+        "client": {
+          "exists": true,
+          "value": "69e642b545936c4be2f5d386"
+        },
+        "freelancer": {
+          "exists": true,
+          "value": "69e66bf845936c4be2f5d3e6"
+        }
+      },
+      "after": {
+        "project": "69e6440945936c4be2f5d39a",
+        "client": "69e642b545936c4be2f5d386",
+        "freelancer": "69e66bf845936c4be2f5d3e6"
+      }
+    },
+    {
+      "model": "Application",
+      "documentId": "69e9f8f184a29838249c4413",
+      "before": {
+        "project": {
+          "exists": true,
+          "value": "69e9eaf784a29838249c4329"
+        },
+        "client": {
+          "exists": true,
+          "value": "69e642b545936c4be2f5d386"
+        },
+        "freelancer": {
+          "exists": true,
+          "value": "69e66bf845936c4be2f5d3e6"
+        }
+      },
+      "after": {
+        "project": "69e9eaf784a29838249c4329",
+        "client": "69e642b545936c4be2f5d386",
+        "freelancer": "69e66bf845936c4be2f5d3e6"
+      }
+    },
+    {
+      "model": "Application",
+      "documentId": "69ebc925db4934fe48923d53",
+      "before": {
+        "project": {
+          "exists": true,
+          "value": "69e9cc8b84a29838249c4119"
+        },
+        "client": {
+          "exists": true,
+          "value": "68e93bfe8d720de91ed8ccd8"
+        },
+        "freelancer": {
+          "exists": true,
+          "value": "69ebc8e4db4934fe48923d3d"
+        }
+      },
+      "after": {
+        "project": "69e9cc8b84a29838249c4119",
+        "client": "68e93bfe8d720de91ed8ccd8",
+        "freelancer": "69ebc8e4db4934fe48923d3d"
+      }
+    },
+    {
+      "model": "Application",
+      "documentId": "6abd493af4d23eeea0476a92",
+      "before": {
+        "project": {
+          "exists": true,
+          "value": "69e6423b45936c4be2f5d381"
+        },
+        "client": {
+          "exists": true,
+          "value": "68e93bfe8d720de91ed8ccd8"
+        },
+        "freelancer": {
+          "exists": true,
+          "value": "69e66bf845936c4be2f5d3e6"
+        }
+      },
+      "after": {
+        "project": "69e6423b45936c4be2f5d381",
+        "client": "68e93bfe8d720de91ed8ccd8",
+        "freelancer": "69e66bf845936c4be2f5d3e6"
+      }
+    }
+  ],
+  "issues": [
+    {
+      "type": "invalid_project_client_reference",
+      "documentId": "6ac110a391fe9916fa4e5301",
+      "detail": {
+        "clientId": null
+      }
+    },
+    {
+      "type": "duplicate_project_freelancer_application",
+      "documentId": "69ebd3c1db4934fe48923db8",
+      "detail": {
+        "key": "69e9cc8b84a29838249c4119:69e66bf845936c4be2f5d3e6"
+      }
+    },
+    {
+      "type": "duplicate_project_freelancer_application",
+      "documentId": "69ebd3c2db4934fe48923dc0",
+      "detail": {
+        "key": "69e9cc8b84a29838249c4119:69e66bf845936c4be2f5d3e6"
+      }
+    },
+    {
+      "type": "stale_freelancer_current_project",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "detail": {
+        "projectId": "68ebdbcbaa2da98aa4daa811"
+      }
+    },
+    {
+      "type": "stale_freelancer_current_project",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "detail": {
+        "projectId": "68ebddf7a23472eedbfe08e6"
+      }
+    },
+    {
+      "type": "stale_freelancer_application",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "detail": {
+        "applicationId": "68eb8d2c33899b6bf9e6523b"
+      }
+    },
+    {
+      "type": "stale_freelancer_application",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "detail": {
+        "applicationId": "68eb8e0133899b6bf9e65243"
+      }
+    },
+    {
+      "type": "stale_freelancer_application",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "detail": {
+        "applicationId": "68eb8e4f33899b6bf9e6524d"
+      }
+    },
+    {
+      "type": "stale_freelancer_application",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "detail": {
+        "applicationId": "68eb96a233899b6bf9e652c5"
+      }
+    },
+    {
+      "type": "stale_freelancer_application",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "detail": {
+        "applicationId": "68ebd9d638b13fcba297ec7b"
+      }
+    },
+    {
+      "type": "stale_freelancer_application",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "detail": {
+        "applicationId": "68ebdbe5aa2da98aa4daa821"
+      }
+    },
+    {
+      "type": "stale_freelancer_application",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "detail": {
+        "applicationId": "68ebdd1e09f365c7c7ed3e37"
+      }
+    },
+    {
+      "type": "stale_freelancer_application",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "detail": {
+        "applicationId": "68ebde1ea23472eedbfe090c"
+      }
+    },
+    {
+      "type": "stale_freelancer_application",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "detail": {
+        "applicationId": "68ebe04fcf59a0f5d0f1c1a5"
+      }
+    }
+  ],
+  "applyStatus": "rolled_back",
+  "applyError": "An existing index has the same name as the requested index. When index names are not specified, they are auto generated and can cause conflicts. Please refer to our documentation. Requested index: { v: 2, unique: true, key: { user: 1 }, name: \"user_1\", sparse: true, background: true }, existing index: { v: 2, key: { user: 1 }, name: \"user_1\", sparse: true, background: true }"
+}

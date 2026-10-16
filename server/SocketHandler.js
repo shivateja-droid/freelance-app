@@ -1,12 +1,22 @@
 import { Chat, Project } from "./Schema.js";
 import { v4 as uuid } from 'uuid';
+import { validateSocketPayload } from './middleware/validateRequest.js';
+import { schemas } from './validation/schemas.js';
+
+const socketValidationError = (socket, result) => {
+  socket.emit('request-error', {
+    error: 'Invalid request data',
+    details: result.error.issues.map((issue) => ({ field: issue.path.join('.'), message: issue.message })),
+  });
+};
 
 const ensureChatExists = async (projectId) => {
   return Chat.findOneAndUpdate(
-    { _id: projectId },
+    { project: projectId },
     {
       $setOnInsert: {
-        _id: projectId,
+        _id: uuid(),
+        project: projectId,
         messages: [],
       },
     },
@@ -17,12 +27,26 @@ const ensureChatExists = async (projectId) => {
   );
 };
 
+const getParticipantProject = async (projectId, user) => {
+  const project = await Project.findById(projectId);
+  const isParticipant = project && (
+    user.usertype === 'admin'
+    || project.client?.toString() === user._id.toString()
+    || project.freelancer?.toString() === user._id.toString()
+  );
+
+  return isParticipant ? project : null;
+};
+
 const SocketHandler = (socket) => {
-  socket.on("join-chat-room", async ({ projectId, freelancerId }) => {
+  socket.on("join-chat-room", async (payload = {}) => {
     try {
+      const validation = validateSocketPayload(schemas.chatProject, payload);
+      if (!validation.success) return socketValidationError(socket, validation);
+      const { projectId } = validation.data;
       const project = await Project.findById(projectId);
 
-      if (!project || project.freelancerId !== freelancerId) {
+      if (!project || socket.user.usertype !== 'freelancer' || project.freelancer?.toString() !== socket.user._id.toString()) {
         return;
       }
 
@@ -38,11 +62,14 @@ const SocketHandler = (socket) => {
     }
   });
 
-  socket.on("join-chat-room-client", async ({ projectId }) => {
+  socket.on("join-chat-room-client", async (payload = {}) => {
     try {
+      const validation = validateSocketPayload(schemas.chatProject, payload);
+      if (!validation.success) return socketValidationError(socket, validation);
+      const { projectId } = validation.data;
       const project = await Project.findById(projectId);
 
-      if (!project || (project.status !== "Assigned" && project.status !== "Completed")) {
+      if (!project || socket.user.usertype !== 'client' || project.client?.toString() !== socket.user._id.toString() || (project.status !== "Assigned" && project.status !== "Completed")) {
         return;
       }
 
@@ -58,8 +85,15 @@ const SocketHandler = (socket) => {
     }
   });
 
-  socket.on('update-messages', async ({ projectId }) => {
+  socket.on('update-messages', async (payload = {}) => {
     try {
+      const validation = validateSocketPayload(schemas.chatProject, payload);
+      if (!validation.success) return socketValidationError(socket, validation);
+      const { projectId } = validation.data;
+      if (!await getParticipantProject(projectId, socket.user)) {
+        return;
+      }
+
       const chat = await ensureChatExists(projectId);
       socket.emit('messages-updated', { chat });
     } catch (error) {
@@ -67,19 +101,26 @@ const SocketHandler = (socket) => {
     }
   });
 
-  socket.on('new-message', async ({ projectId, senderId, message, time }) => {
+  socket.on('new-message', async (payload = {}) => {
     try {
-      if (!message?.trim()) {
+      const validation = validateSocketPayload(schemas.chatMessage, payload);
+      if (!validation.success) return socketValidationError(socket, validation);
+      const { projectId, message } = validation.data;
+      if (!await getParticipantProject(projectId, socket.user)) {
         return;
       }
 
-      await ensureChatExists(projectId);
-
       const chat = await Chat.findOneAndUpdate(
-        { _id: projectId },
+        { project: projectId },
         {
+          $setOnInsert: { _id: uuid(), project: projectId },
           $push: {
-            messages: { id: uuid(), text: message, senderId, time },
+            messages: {
+              id: uuid(),
+              text: message.trim(),
+              sender: socket.user._id,
+              time: new Date(),
+            },
           },
         },
         {

@@ -18,3 +18,14 @@ export const loginUser = async (req, res) => {
     return handleServiceError(res, error);
   }
 };
+
+export const getCurrentUser = async (req, res) => {
+  return res.status(200).json({
+    user: {
+      _id: req.user._id,
+      username: req.user.username,
+      email: req.user.email,
+      usertype: req.user.usertype,
+    },
+  });
+};

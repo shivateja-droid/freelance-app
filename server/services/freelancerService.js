@@ -1,11 +1,11 @@
 import { Freelancer } from '../Schema.js';
 
 export const fetchFreelancerByUserIdService = async (userId) => {
-  return Freelancer.findOne({ userId });
+  return Freelancer.findOne({ user: userId });
 };
 
-export const updateFreelancerService = async ({ freelancerId, updateSkills, description }) => {
-  const freelancer = await Freelancer.findById(freelancerId);
+export const updateFreelancerService = async ({ updateSkills, description }, user) => {
+  const freelancer = await Freelancer.findOne({ user: user._id });
 
   if (!freelancer) {
     const error = new Error('Freelancer not found');

@@ -17,6 +17,7 @@ import AdminProjects from './pages/admin/AdminProjects.jsx'
 import AllApplications from './pages/admin/AllApplications.jsx'
 import AllUsers from './pages/admin/AllUsers.jsx'
 import { Analytics } from '@vercel/analytics/react'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
 
 function App() {
 
@@ -31,21 +32,21 @@ function App() {
           <Route path='/' element={<Landing />} />
           <Route path='/authenticate' element={<Authenticate />} />
 
-          <Route path='/client' element={<Client />} />
-          <Route path='/new-project' element={<NewProject />} />
-          <Route path='/project-applications' element={<ProjectApplications />} />
-          <Route path='/client-project/:id' element={<ProjectWorking />} />
+          <Route path='/client' element={<ProtectedRoute allowedRoles={['client']}><Client /></ProtectedRoute>} />
+          <Route path='/new-project' element={<ProtectedRoute allowedRoles={['client']}><NewProject /></ProtectedRoute>} />
+          <Route path='/project-applications' element={<ProtectedRoute allowedRoles={['client']}><ProjectApplications /></ProtectedRoute>} />
+          <Route path='/client-project/:id' element={<ProtectedRoute allowedRoles={['client']}><ProjectWorking /></ProtectedRoute>} />
 
-          <Route path='/freelancer' element={<Freelancer />} />
-          <Route path='/all-projects' element={<AllProjects />} />
-          <Route path='/my-projects' element={<MyProjects />} /> 
-          <Route path='/myApplications' element={<MyApplications />} />
-          <Route path='/project/:id' element={<ProjectData />} />
+          <Route path='/freelancer' element={<ProtectedRoute allowedRoles={['freelancer']}><Freelancer /></ProtectedRoute>} />
+          <Route path='/all-projects' element={<ProtectedRoute allowedRoles={['freelancer']}><AllProjects /></ProtectedRoute>} />
+          <Route path='/my-projects' element={<ProtectedRoute allowedRoles={['freelancer']}><MyProjects /></ProtectedRoute>} />
+          <Route path='/myApplications' element={<ProtectedRoute allowedRoles={['freelancer']}><MyApplications /></ProtectedRoute>} />
+          <Route path='/project/:id' element={<ProtectedRoute allowedRoles={['freelancer']}><ProjectData /></ProtectedRoute>} />
 
-          <Route path='/admin' element={<Admin />} />
-          <Route path='/admin-projects' element={<AdminProjects />} />
-          <Route path='/admin-applications' element={<AllApplications />} />
-          <Route path='/all-users' element={<AllUsers />} />
+          <Route path='/admin' element={<ProtectedRoute allowedRoles={['admin']}><Admin /></ProtectedRoute>} />
+          <Route path='/admin-projects' element={<ProtectedRoute allowedRoles={['admin']}><AdminProjects /></ProtectedRoute>} />
+          <Route path='/admin-applications' element={<ProtectedRoute allowedRoles={['admin']}><AllApplications /></ProtectedRoute>} />
+          <Route path='/all-users' element={<ProtectedRoute allowedRoles={['admin']}><AllUsers /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>

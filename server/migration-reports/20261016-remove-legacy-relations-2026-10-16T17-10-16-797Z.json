@@ -1,0 +1,1034 @@
+{
+  "migration": "20261016-remove-legacy-relations",
+  "generatedAt": "2026-10-16T17:10:16.797Z",
+  "mode": "dry-run",
+  "rollback": {
+    "supported": true,
+    "command": "npm run db:rollback:legacy-relations -- migration-reports/<report-file>.json"
+  },
+  "counts": {
+    "freelancers": 4,
+    "projects": 8,
+    "applications": 8,
+    "chats": 7
+  },
+  "changes": [
+    {
+      "model": "Freelancer",
+      "documentId": "68ea9a4033899b6bf9e65096",
+      "fields": [
+        "userId",
+        "applications",
+        "currentProjects",
+        "completedProjects"
+      ],
+      "before": {
+        "userId": {
+          "exists": true,
+          "value": "68ea9a4033899b6bf9e65094"
+        },
+        "applications": {
+          "exists": true,
+          "value": [
+            "68eb8d2c33899b6bf9e6523b",
+            "68eb8e0133899b6bf9e65243",
+            "68eb8e4f33899b6bf9e6524d",
+            "68eb96a233899b6bf9e652c5",
+            "68eb9ad533899b6bf9e65321",
+            "68ebd9d638b13fcba297ec7b",
+            "68ebdbe5aa2da98aa4daa821",
+            "68ebdd1e09f365c7c7ed3e37",
+            "68ebde1ea23472eedbfe090c",
+            "68ebe04fcf59a0f5d0f1c1a5"
+          ]
+        },
+        "currentProjects": {
+          "exists": true,
+          "value": [
+            "68eb9a6f33899b6bf9e65305",
+            "68ebdbcbaa2da98aa4daa811",
+            "68eb9aaa33899b6bf9e65309",
+            "68ebddf7a23472eedbfe08e6"
+          ]
+        },
+        "completedProjects": {
+          "exists": true,
+          "value": [
+            "68eb9a2933899b6bf9e65301",
+            "68eb9a6f33899b6bf9e65305"
+          ]
+        }
+      }
+    },
+    {
+      "model": "Freelancer",
+      "documentId": "69e66bf845936c4be2f5d3e8",
+      "fields": [
+        "userId",
+        "applications",
+        "currentProjects",
+        "completedProjects"
+      ],
+      "before": {
+        "userId": {
+          "exists": true,
+          "value": "69e66bf845936c4be2f5d3e6"
+        },
+        "applications": {
+          "exists": true,
+          "value": [
+            "69e7bbd98cfbf90c261d4780",
+            "69e9f8f184a29838249c4413",
+            "69ebd3c1db4934fe48923db8",
+            "69ebd3c2db4934fe48923dc0",
+            "6abd493af4d23eeea0476a92"
+          ]
+        },
+        "currentProjects": {
+          "exists": true,
+          "value": [
+            "69e9eaf784a29838249c4329"
+          ]
+        },
+        "completedProjects": {
+          "exists": true,
+          "value": [
+            "69e6440945936c4be2f5d39a",
+            "69e9cc8b84a29838249c4119"
+          ]
+        }
+      }
+    },
+    {
+      "model": "Freelancer",
+      "documentId": "69ebc8e4db4934fe48923d3f",
+      "fields": [
+        "userId",
+        "applications",
+        "currentProjects",
+        "completedProjects"
+      ],
+      "before": {
+        "userId": {
+          "exists": true,
+          "value": "69ebc8e4db4934fe48923d3d"
+        },
+        "applications": {
+          "exists": true,
+          "value": [
+            "69ebc925db4934fe48923d53"
+          ]
+        },
+        "currentProjects": {
+          "exists": true,
+          "value": []
+        },
+        "completedProjects": {
+          "exists": true,
+          "value": []
+        }
+      }
+    },
+    {
+      "model": "Freelancer",
+      "documentId": "6ac2a5c7c2011fbf46fdf06a",
+      "fields": [
+        "userId",
+        "applications",
+        "currentProjects",
+        "completedProjects"
+      ],
+      "before": {
+        "userId": {
+          "exists": true,
+          "value": "6ac2a5c7c2011fbf46fdf068"
+        },
+        "applications": {
+          "exists": true,
+          "value": []
+        },
+        "currentProjects": {
+          "exists": true,
+          "value": []
+        },
+        "completedProjects": {
+          "exists": true,
+          "value": []
+        }
+      }
+    },
+    {
+      "model": "Project",
+      "documentId": "68eb9aaa33899b6bf9e65309",
+      "fields": [
+        "clientId",
+        "bids",
+        "bidAmounts",
+        "freelancerId"
+      ],
+      "before": {
+        "clientId": {
+          "exists": true,
+          "value": "68e93bfe8d720de91ed8ccd8"
+        },
+        "bids": {
+          "exists": true,
+          "value": [
+            "68ea9a4033899b6bf9e65094"
+          ]
+        },
+        "bidAmounts": {
+          "exists": true,
+          "value": [
+            55
+          ]
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "68ea9a4033899b6bf9e65094"
+        }
+      }
+    },
+    {
+      "model": "Project",
+      "documentId": "68eb9a6f33899b6bf9e65305",
+      "fields": [
+        "clientId",
+        "bids",
+        "bidAmounts",
+        "freelancerId"
+      ],
+      "before": {
+        "clientId": {
+          "exists": true,
+          "value": "68e93bfe8d720de91ed8ccd8"
+        },
+        "bids": {
+          "exists": true,
+          "value": [
+            "68ea9a4033899b6bf9e65094"
+          ]
+        },
+        "bidAmounts": {
+          "exists": true,
+          "value": [
+            23333
+          ]
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "68ea9a4033899b6bf9e65094"
+        }
+      }
+    },
+    {
+      "model": "Project",
+      "documentId": "68eb9a2933899b6bf9e65301",
+      "fields": [
+        "clientId",
+        "bids",
+        "bidAmounts",
+        "freelancerId"
+      ],
+      "before": {
+        "clientId": {
+          "exists": true,
+          "value": "68e93bfe8d720de91ed8ccd8"
+        },
+        "bids": {
+          "exists": true,
+          "value": [
+            "68ea9a4033899b6bf9e65094"
+          ]
+        },
+        "bidAmounts": {
+          "exists": true,
+          "value": [
+            2000
+          ]
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "68ea9a4033899b6bf9e65094"
+        }
+      }
+    },
+    {
+      "model": "Project",
+      "documentId": "69e6423b45936c4be2f5d381",
+      "fields": [
+        "clientId",
+        "bids",
+        "bidAmounts"
+      ],
+      "before": {
+        "clientId": {
+          "exists": true,
+          "value": "68e93bfe8d720de91ed8ccd8"
+        },
+        "bids": {
+          "exists": true,
+          "value": [
+            "69e66bf845936c4be2f5d3e6"
+          ]
+        },
+        "bidAmounts": {
+          "exists": true,
+          "value": [
+            7777
+          ]
+        }
+      }
+    },
+    {
+      "model": "Project",
+      "documentId": "69e6440945936c4be2f5d39a",
+      "fields": [
+        "clientId",
+        "bids",
+        "bidAmounts",
+        "freelancerId"
+      ],
+      "before": {
+        "clientId": {
+          "exists": true,
+          "value": "69e642b545936c4be2f5d386"
+        },
+        "bids": {
+          "exists": true,
+          "value": [
+            "69e66bf845936c4be2f5d3e6"
+          ]
+        },
+        "bidAmounts": {
+          "exists": true,
+          "value": [
+            1000000
+          ]
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "69e66bf845936c4be2f5d3e6"
+        }
+      }
+    },
+    {
+      "model": "Project",
+      "documentId": "69e9cc8b84a29838249c4119",
+      "fields": [
+        "clientId",
+        "bids",
+        "bidAmounts",
+        "freelancerId"
+      ],
+      "before": {
+        "clientId": {
+          "exists": true,
+          "value": "68e93bfe8d720de91ed8ccd8"
+        },
+        "bids": {
+          "exists": true,
+          "value": [
+            "69ebc8e4db4934fe48923d3d",
+            "69e66bf845936c4be2f5d3e6",
+            "69e66bf845936c4be2f5d3e6"
+          ]
+        },
+        "bidAmounts": {
+          "exists": true,
+          "value": [
+            1500,
+            1111,
+            1111
+          ]
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "69e66bf845936c4be2f5d3e6"
+        }
+      }
+    },
+    {
+      "model": "Project",
+      "documentId": "69e9eaf784a29838249c4329",
+      "fields": [
+        "clientId",
+        "bids",
+        "bidAmounts",
+        "freelancerId"
+      ],
+      "before": {
+        "clientId": {
+          "exists": true,
+          "value": "69e642b545936c4be2f5d386"
+        },
+        "bids": {
+          "exists": true,
+          "value": [
+            "69e66bf845936c4be2f5d3e6"
+          ]
+        },
+        "bidAmounts": {
+          "exists": true,
+          "value": [
+            10000
+          ]
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "69e66bf845936c4be2f5d3e6"
+        }
+      }
+    },
+    {
+      "model": "Project",
+      "documentId": "6ac2a56ac2011fbf46fdf059",
+      "fields": [
+        "clientId",
+        "bids",
+        "bidAmounts",
+        "freelancerId"
+      ],
+      "before": {
+        "clientId": {
+          "exists": true,
+          "value": "6ac2a4eac2011fbf46fdf041"
+        },
+        "bids": {
+          "exists": true,
+          "value": []
+        },
+        "bidAmounts": {
+          "exists": true,
+          "value": []
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "6ac2a5c7c2011fbf46fdf068"
+        }
+      }
+    },
+    {
+      "model": "Application",
+      "documentId": "68eb9ad533899b6bf9e65321",
+      "fields": [
+        "projectId",
+        "clientId",
+        "freelancerId"
+      ],
+      "before": {
+        "projectId": {
+          "exists": true,
+          "value": "68eb9a2933899b6bf9e65301"
+        },
+        "clientId": {
+          "exists": true,
+          "value": "68e93bfe8d720de91ed8ccd8"
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "68ea9a4033899b6bf9e65094"
+        }
+      }
+    },
+    {
+      "model": "Application",
+      "documentId": "69e7bbd98cfbf90c261d4780",
+      "fields": [
+        "projectId",
+        "clientId",
+        "freelancerId"
+      ],
+      "before": {
+        "projectId": {
+          "exists": true,
+          "value": "69e6440945936c4be2f5d39a"
+        },
+        "clientId": {
+          "exists": true,
+          "value": "69e642b545936c4be2f5d386"
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "69e66bf845936c4be2f5d3e6"
+        }
+      }
+    },
+    {
+      "model": "Application",
+      "documentId": "69e9f8f184a29838249c4413",
+      "fields": [
+        "projectId",
+        "clientId",
+        "freelancerId"
+      ],
+      "before": {
+        "projectId": {
+          "exists": true,
+          "value": "69e9eaf784a29838249c4329"
+        },
+        "clientId": {
+          "exists": true,
+          "value": "69e642b545936c4be2f5d386"
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "69e66bf845936c4be2f5d3e6"
+        }
+      }
+    },
+    {
+      "model": "Application",
+      "documentId": "69ebc925db4934fe48923d53",
+      "fields": [
+        "projectId",
+        "clientId",
+        "freelancerId"
+      ],
+      "before": {
+        "projectId": {
+          "exists": true,
+          "value": "69e9cc8b84a29838249c4119"
+        },
+        "clientId": {
+          "exists": true,
+          "value": "68e93bfe8d720de91ed8ccd8"
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "69ebc8e4db4934fe48923d3d"
+        }
+      }
+    },
+    {
+      "model": "Application",
+      "documentId": "6abd493af4d23eeea0476a92",
+      "fields": [
+        "projectId",
+        "clientId",
+        "freelancerId"
+      ],
+      "before": {
+        "projectId": {
+          "exists": true,
+          "value": "69e6423b45936c4be2f5d381"
+        },
+        "clientId": {
+          "exists": true,
+          "value": "68e93bfe8d720de91ed8ccd8"
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "69e66bf845936c4be2f5d3e6"
+        }
+      }
+    },
+    {
+      "model": "Application",
+      "documentId": "6ac2a66ac2011fbf46fdf0c2",
+      "fields": [
+        "projectId",
+        "clientId",
+        "freelancerId"
+      ],
+      "before": {
+        "projectId": {
+          "exists": true,
+          "value": "6ac2a56ac2011fbf46fdf059"
+        },
+        "clientId": {
+          "exists": true,
+          "value": "6ac2a4eac2011fbf46fdf041"
+        },
+        "freelancerId": {
+          "exists": true,
+          "value": "6ac2a5c7c2011fbf46fdf068"
+        }
+      }
+    },
+    {
+      "model": "Chat",
+      "documentId": "68eb9a6f33899b6bf9e65305",
+      "fields": [
+        "messages"
+      ],
+      "before": {
+        "messages": {
+          "exists": true,
+          "value": [
+            {
+              "id": "1d93f8b0-7f1e-4b79-84a4-0a23729ff6c6",
+              "text": "hello",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2025-10-12T16:58:48.680Z"
+            },
+            {
+              "id": "b57c3733-af2a-4641-87ab-8dee678d9890",
+              "text": "hi",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2025-10-12T16:59:03.899Z"
+            },
+            {
+              "id": "6c83df7e-dc60-448e-b755-59d48671723d",
+              "text": "hi",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2025-10-12T17:13:30.099Z"
+            },
+            {
+              "id": "d9575a39-c2f9-428f-b861-933f71cbb56f",
+              "text": "hello",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2025-10-12T17:13:41.213Z"
+            },
+            {
+              "id": "f5c42785-949e-4add-8822-59b0bd045c80",
+              "text": "dffdgfg",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2026-04-22T11:10:18.247Z"
+            },
+            {
+              "id": "bded5b7c-fbd4-4855-aa49-389c2a0070a7",
+              "text": "yeah",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2026-04-22T11:11:38.106Z"
+            },
+            {
+              "id": "4ad77bea-1ebd-4a08-a2a3-135c0804cfd6",
+              "text": "whatttt",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2026-04-22T11:12:24.984Z"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "model": "Chat",
+      "documentId": "68eb9a2933899b6bf9e65301",
+      "fields": [
+        "messages"
+      ],
+      "before": {
+        "messages": {
+          "exists": true,
+          "value": [
+            {
+              "id": "eb2ba1f4-40b8-4662-986c-29b1662e808d",
+              "text": "hi",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2025-10-12T13:30:30.746Z"
+            },
+            {
+              "id": "0a5aff2d-dcb5-4e6f-9b31-abe27bda5ab2",
+              "text": "hello",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2025-10-12T13:33:32.728Z"
+            },
+            {
+              "id": "588c2f3a-da0d-401c-9246-5256b9d0af75",
+              "text": "hi",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2025-10-12T13:34:04.695Z"
+            },
+            {
+              "id": "88d32f34-b477-4868-aadc-c63f3bdf73c9",
+              "text": "hi",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2025-10-12T13:42:55.541Z"
+            },
+            {
+              "id": "d31c972c-fc67-40c8-b335-64f55cddf756",
+              "text": "hi",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2025-10-12T13:43:03.231Z"
+            },
+            {
+              "id": "78bca3b6-9e18-4bcd-81af-202edb95f42a",
+              "text": "hello",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2025-10-12T13:47:52.416Z"
+            },
+            {
+              "id": "f3dd2d76-e1ec-43f5-8915-1347ca3c0715",
+              "text": "hi",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2025-10-12T13:57:11.041Z"
+            },
+            {
+              "id": "77ca8531-cbc7-4cd2-92d1-bc031d562d15",
+              "text": "how are you ",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2025-10-12T13:59:59.573Z"
+            },
+            {
+              "id": "9a316adf-dabb-447a-b53f-95b55a92afa8",
+              "text": "hello",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2025-10-12T14:00:39.880Z"
+            },
+            {
+              "id": "f8ce562e-d4bd-40c7-9313-8cc27835f349",
+              "text": "hello",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2025-10-12T14:00:45.665Z"
+            },
+            {
+              "id": "1a701a41-63be-4ec2-a98f-ae963d0eeff3",
+              "text": "hi",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2025-10-12T14:00:55.471Z"
+            },
+            {
+              "id": "59cc1f68-32a0-4438-884b-e1a56bc623b5",
+              "text": "hi",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2025-10-12T14:01:28.709Z"
+            },
+            {
+              "id": "804fccd9-5848-4218-a293-95608197cb29",
+              "text": "em chestunnav",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2025-10-12T14:04:06.173Z"
+            },
+            {
+              "id": "4ebc69bd-ec91-4fb2-8315-4431006f60be",
+              "text": "namaste ",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2025-10-12T14:14:50.118Z"
+            },
+            {
+              "id": "aa9f4b45-a1e2-4e11-8c76-1b0ccd431401",
+              "text": "namaste ",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2025-10-12T14:15:11.665Z"
+            },
+            {
+              "id": "ddf6975c-4361-4f87-9835-c62ef443fcb1",
+              "text": "hello",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2025-10-12T16:32:27.935Z"
+            },
+            {
+              "id": "62d3d8c6-484c-4119-82a8-fefef8483716",
+              "text": "hi",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2025-10-12T16:32:59.052Z"
+            },
+            {
+              "id": "69c340f5-4453-4ea0-8761-22741dc42876",
+              "text": "hi",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2025-10-12T16:33:20.038Z"
+            },
+            {
+              "id": "3f72c6b5-d922-4320-84d9-efe24c8addf7",
+              "text": "dfgdfg",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2026-04-22T11:46:06.641Z"
+            },
+            {
+              "id": "a17e98af-c8b3-4b3e-87f1-edcc89e8c29d",
+              "text": "sfsdfsdfsdf",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2026-04-22T11:46:13.519Z"
+            },
+            {
+              "id": "65d90680-9e80-414f-883a-7a6f8e33f148",
+              "text": "sdfsdfsdfsdf",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2026-04-22T11:46:18.119Z"
+            },
+            {
+              "id": "fc20c405-9b8c-479e-85c6-f5a809ec558d",
+              "text": "ffff",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2026-04-23T07:59:04.734Z"
+            },
+            {
+              "id": "933751a2-ca47-4467-90dc-77625eb10543",
+              "text": "hello",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2026-04-23T07:59:18.848Z"
+            },
+            {
+              "id": "e06b829a-4053-4f32-a3e9-f50861326745",
+              "text": "hi",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2026-09-30T17:36:29.880Z"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "model": "Chat",
+      "documentId": "68eb9aaa33899b6bf9e65309",
+      "fields": [
+        "messages"
+      ],
+      "before": {
+        "messages": {
+          "exists": true,
+          "value": [
+            {
+              "id": "73b5a528-5d47-4f5e-81b0-5996a9edb218",
+              "text": "khgy",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2026-04-20T10:54:35.750Z"
+            },
+            {
+              "id": "c245faf4-34ae-412b-8f2f-99098d0000de",
+              "text": "ji",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2026-04-20T10:57:19.164Z"
+            },
+            {
+              "id": "16050a24-a4f3-40e2-8775-4bb851931c23",
+              "text": "hello",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2026-04-20T10:57:43.483Z"
+            },
+            {
+              "id": "af9db74d-23ed-4e91-b738-e6f56c719f1a",
+              "text": "hi",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2026-04-20T10:58:23.542Z"
+            },
+            {
+              "id": "b36dddf4-d93b-4316-9b80-f8182904ad01",
+              "text": "jai",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2026-04-22T10:37:31.434Z"
+            },
+            {
+              "id": "13f8febd-0186-459d-b343-6a20758f0058",
+              "text": "gdsfgf",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2026-04-23T07:19:02.397Z"
+            },
+            {
+              "id": "483c04d6-876f-46c0-a93e-d11ea49cef71",
+              "text": "cheppu",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2026-04-23T08:03:22.533Z"
+            },
+            {
+              "id": "3ae86f0f-ad39-4661-b97e-60b0488c6a66",
+              "text": "ok",
+              "sender": "68ea9a4033899b6bf9e65094",
+              "senderId": "68ea9a4033899b6bf9e65094",
+              "time": "2026-04-23T09:03:47.011Z"
+            },
+            {
+              "id": "dce3e91a-ae6d-4c21-b68d-3d3aa97766d2",
+              "text": "hi",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2026-10-01T17:43:46.548Z"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "model": "Chat",
+      "documentId": "69e6440945936c4be2f5d39a",
+      "fields": [
+        "messages"
+      ],
+      "before": {
+        "messages": {
+          "exists": true,
+          "value": [
+            {
+              "id": "43ab511a-27a3-49cd-8bed-3cc154d6f0eb",
+              "text": "hello ",
+              "sender": "69e642b545936c4be2f5d386",
+              "senderId": "69e642b545936c4be2f5d386",
+              "time": "2026-04-21T18:04:03.646Z"
+            },
+            {
+              "id": "d6635505-b5e4-47c4-bbed-9e19133ef491",
+              "text": "hi",
+              "sender": "69e66bf845936c4be2f5d3e6",
+              "senderId": "69e66bf845936c4be2f5d3e6",
+              "time": "2026-04-21T18:10:37.000Z"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "model": "Chat",
+      "documentId": "69e9eaf784a29838249c4329",
+      "fields": [
+        "messages"
+      ],
+      "before": {
+        "messages": {
+          "exists": true,
+          "value": [
+            {
+              "id": "54087a87-f908-42db-87c7-e480d52c4116",
+              "text": "hi",
+              "sender": "69e66bf845936c4be2f5d3e6",
+              "senderId": "69e66bf845936c4be2f5d3e6",
+              "time": "2026-04-23T17:16:52.977Z"
+            },
+            {
+              "id": "ad7109c3-c4ba-4ff4-b85d-4fea0b449f58",
+              "text": "hello",
+              "sender": "69e642b545936c4be2f5d386",
+              "senderId": "69e642b545936c4be2f5d386",
+              "time": "2026-04-23T17:40:47.840Z"
+            },
+            {
+              "id": "c75dba21-8da9-4af5-970d-943568eecab0",
+              "text": "hi",
+              "sender": "69e66bf845936c4be2f5d3e6",
+              "senderId": "69e66bf845936c4be2f5d3e6",
+              "time": "2026-04-23T20:29:47.157Z"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "model": "Chat",
+      "documentId": "69e9cc8b84a29838249c4119",
+      "fields": [
+        "messages"
+      ],
+      "before": {
+        "messages": {
+          "exists": true,
+          "value": [
+            {
+              "id": "c729b7dc-444d-4b46-b006-243b8fd4a7f3",
+              "text": "hi",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2026-04-24T20:37:19.234Z"
+            },
+            {
+              "id": "73901e5f-7401-42c6-b5df-40141d385d48",
+              "text": "hello",
+              "sender": "69e66bf845936c4be2f5d3e6",
+              "senderId": "69e66bf845936c4be2f5d3e6",
+              "time": "2026-04-24T20:37:45.586Z"
+            },
+            {
+              "id": "891cee97-864f-47b3-8521-18ae8b86834a",
+              "text": "tq",
+              "sender": "68e93bfe8d720de91ed8ccd8",
+              "senderId": "68e93bfe8d720de91ed8ccd8",
+              "time": "2026-04-24T20:38:55.804Z"
+            },
+            {
+              "id": "70c866bc-0d8e-4a7b-9335-6b1207456f8e",
+              "text": "welcome",
+              "sender": "69e66bf845936c4be2f5d3e6",
+              "senderId": "69e66bf845936c4be2f5d3e6",
+              "time": "2026-04-24T20:39:13.528Z"
+            },
+            {
+              "id": "37696653-ff33-424b-809f-3f1c55e87b96",
+              "text": "hello",
+              "sender": "69e66bf845936c4be2f5d3e6",
+              "senderId": "69e66bf845936c4be2f5d3e6",
+              "time": "2026-09-25T16:53:30.537Z"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "model": "Chat",
+      "documentId": "6ac2a56ac2011fbf46fdf059",
+      "fields": [
+        "messages"
+      ],
+      "before": {
+        "messages": {
+          "exists": true,
+          "value": [
+            {
+              "id": "60765d7a-59d7-4b22-922f-a558cc12b4d6",
+              "text": "hi",
+              "sender": "6ac2a4eac2011fbf46fdf041",
+              "senderId": "6ac2a4eac2011fbf46fdf041",
+              "time": "2026-10-04T19:18:56.904Z"
+            },
+            {
+              "id": "6d22aec9-a2f4-44c7-8309-6ae873f35044",
+              "text": "hello",
+              "sender": "6ac2a5c7c2011fbf46fdf068",
+              "senderId": "6ac2a5c7c2011fbf46fdf068",
+              "time": "2026-10-04T19:19:23.774Z"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "skipped": [
+    {
+      "model": "Application",
+      "documentId": "69ebd3c1db4934fe48923db8",
+      "reason": "missing_canonical_relationships",
+      "fields": [
+        "projectId",
+        "clientId",
+        "freelancerId"
+      ]
+    },
+    {
+      "model": "Application",
+      "documentId": "69ebd3c2db4934fe48923dc0",
+      "reason": "missing_canonical_relationships",
+      "fields": [
+        "projectId",
+        "clientId",
+        "freelancerId"
+      ]
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const NewProject = () => {
   const [projectName, setProjectName] = useState('');
   const [description, setDescription] = useState('');
-  const [budget, setBudget] = useState(0);
+  const [budget, setBudget] = useState('');
   const [skills, setSkills] = useState('');
   const navigate = useNavigate();
 
@@ -21,16 +21,12 @@ const NewProject = () => {
       description,
       budget,
       skills,
-      clientId: localStorage.getItem('userId'),
-      clientName: localStorage.getItem('username'),
-      clientEmail: localStorage.getItem('email'),
-      status: "Available"
     })
       .then(() => {
         alert("Project created successfully");
         setProjectName('');
         setDescription('');
-        setBudget(0);
+        setBudget('');
         setSkills('');
         navigate('/client');
       })
@@ -54,7 +50,7 @@ const NewProject = () => {
         <div className='flex flex-col gap-2 sm:flex-row'>
           <div className='mb-6 w-full sm:w-1/3'>
             <label htmlFor="Budget" className="theme-heading mb-2 block text-sm font-medium">Budget in ₹</label>
-            <input onChange={(e) => setBudget(e.target.value)} value={budget} type="number" id="Budget" aria-describedby="helper-text-explanation" className="theme-input block w-full rounded-xl p-2.5 text-sm" placeholder="90210" required />
+          <input onChange={(e) => setBudget(e.target.value === '' ? '' : Number(e.target.value))} value={budget} type="number" min="0.01" step="0.01" id="Budget" aria-describedby="helper-text-explanation" className="theme-input block w-full rounded-xl p-2.5 text-sm" placeholder="90210" required />
           </div>
           <div className="mb-6 w-full sm:w-2/3">
             <label htmlFor="default-input" className="theme-heading mb-2 block text-sm font-medium">Required skills (separate by commas)</label>

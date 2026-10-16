@@ -1,0 +1,10 @@
+{
+  "migration": "20261004-canonical-indexes",
+  "generatedAt": "2026-10-04T13:03:18.786Z",
+  "mode": "dry-run",
+  "rollback": {
+    "supported": true,
+    "command": "npm run db:rollback:relation-indexes -- migration-reports/<report-file>.json"
+  },
+  "changes": []
+}

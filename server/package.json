@@ -9,7 +9,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "db:migrate:relations": "node migrations/20261004-canonical-relations.js",
+    "db:migrate:relations:apply": "node migrations/20261004-canonical-relations.js --apply",
+    "db:rollback:relations": "node migrations/20261004-canonical-relations.js --rollback",
+    "db:migrate:legacy-relations": "node migrations/20261016-remove-legacy-relations.js",
+    "db:migrate:legacy-relations:apply": "node migrations/20261016-remove-legacy-relations.js --apply",
+    "db:rollback:legacy-relations": "node migrations/20261016-remove-legacy-relations.js --rollback",
+    "db:audit:relations": "node scripts/audit-relations.js",
+    "db:migrate:relation-indexes": "node migrations/20261004-canonical-indexes.js",
+    "db:migrate:relation-indexes:apply": "node migrations/20261004-canonical-indexes.js --apply",
+    "db:rollback:relation-indexes": "node migrations/20261004-canonical-indexes.js --rollback"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -18,9 +28,11 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "http": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.19.1",
     "socket.io": "^4.8.1",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

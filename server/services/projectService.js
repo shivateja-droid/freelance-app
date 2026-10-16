@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Freelancer, Project } from '../Schema.js';
 
 export const fetchProjectByIdService = async (projectId) => {
@@ -13,19 +14,16 @@ export const createProjectService = async ({
   description,
   budget,
   skills,
-  clientId,
-  clientName,
-  clientEmail,
-}) => {
+}, client) => {
   const projectSkills = skills.split(',');
   const newProject = new Project({
     title,
     description,
     budget,
     skills: projectSkills,
-    clientId,
-    clientName,
-    clientEmail,
+    client: client._id,
+    clientName: client.username,
+    clientEmail: client.email,
     postedDate: new Date(),
   });
 
@@ -39,12 +37,18 @@ export const submitProjectService = async ({
   projectLink,
   manualLink,
   submissionDescription,
-}) => {
+}, freelancer) => {
   const project = await Project.findById(projectId);
 
   if (!project) {
     const error = new Error('Project not found');
     error.status = 404;
+    throw error;
+  }
+
+  if (project.freelancer?.toString() !== freelancer._id.toString()) {
+    const error = new Error('You are not assigned to this project');
+    error.status = 403;
     throw error;
   }
 
@@ -58,7 +62,7 @@ export const submitProjectService = async ({
   return { message: 'Project added' };
 };
 
-export const approveSubmissionService = async (projectId) => {
+export const approveSubmissionService = async (projectId, client) => {
   const project = await Project.findById(projectId);
 
   if (!project) {
@@ -67,7 +71,13 @@ export const approveSubmissionService = async (projectId) => {
     throw error;
   }
 
-  const freelancer = await Freelancer.findOne({ userId: project.freelancerId });
+  if (project.client?.toString() !== client._id.toString()) {
+    const error = new Error('You do not own this project');
+    error.status = 403;
+    throw error;
+  }
+
+  const freelancer = await Freelancer.findOne({ user: project.freelancer });
 
   if (!freelancer) {
     const error = new Error('Freelancer not found');
@@ -75,27 +85,40 @@ export const approveSubmissionService = async (projectId) => {
     throw error;
   }
 
-  project.submissionAccepted = true;
-  project.status = 'Completed';
-
-  freelancer.currentProjects = freelancer.currentProjects.filter(
-    (currentProjectId) => currentProjectId.toString() !== project._id.toString(),
-  );
-  freelancer.completedProjects.push(project._id);
-  freelancer.funds = parseInt(freelancer.funds) + parseInt(project.budget);
-
-  await project.save();
-  await freelancer.save();
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const completion = await Project.updateOne(
+        { _id: project._id, submission: true, submissionAccepted: false },
+        { $set: { submissionAccepted: true, status: 'Completed' } },
+        { session },
+      );
+      if (completion.modifiedCount !== 1) {
+        const error = new Error('This submission has already been processed');
+        error.status = 409;
+        throw error;
+      }
+      await Freelancer.updateOne({ _id: freelancer._id }, { $inc: { funds: Number(project.budget) } }, { session });
+    });
+  } finally {
+    await session.endSession();
+  }
 
   return { message: 'submission approved' };
 };
 
-export const rejectSubmissionService = async (projectId) => {
+export const rejectSubmissionService = async (projectId, client) => {
   const project = await Project.findById(projectId);
 
   if (!project) {
     const error = new Error('Project not found');
     error.status = 404;
+    throw error;
+  }
+
+  if (project.client?.toString() !== client._id.toString()) {
+    const error = new Error('You do not own this project');
+    error.status = 403;
     throw error;
   }
 

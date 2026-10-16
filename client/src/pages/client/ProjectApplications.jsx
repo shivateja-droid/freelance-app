@@ -16,11 +16,8 @@ const ProjectApplications = () => {
     await axios
       .get(`${BASE_URI}/fetch-applications`)
       .then((response) => {
-        const filtered = response.data.filter(
-          (application) => application.clientId === localStorage.getItem("userId")
-        );
-        setApplications(filtered);
-        setDisplayApplications(filtered.reverse());
+        setApplications(response.data);
+        setDisplayApplications([...response.data].reverse());
       })
       .catch((err) => {
         console.log(err);

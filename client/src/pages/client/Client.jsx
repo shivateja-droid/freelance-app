@@ -17,7 +17,7 @@ const Client = () => {
     const BASE_URI = import.meta.env.VITE_API_URL;
     await axios.get(`${BASE_URI}/fetch-projects`).then(
       (response) => {
-        const pros = response.data.filter(pro => pro.clientId === localStorage.getItem('userId'));
+        const pros = response.data.filter(pro => pro.client === localStorage.getItem('userId'));
         setProjects(pros);
         setDisplayProjects(pros.reverse());
       }

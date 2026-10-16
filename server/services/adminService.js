@@ -1,5 +1,5 @@
 import { User } from '../Schema.js';
 
 export const fetchUsersService = async () => {
-  return User.find();
+  return User.find().select('_id username email usertype');
 };

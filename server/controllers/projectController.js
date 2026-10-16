@@ -28,7 +28,7 @@ export const fetchProjects = async (_req, res) => {
 
 export const createProject = async (req, res) => {
   try {
-    const result = await createProjectService(req.body);
+    const result = await createProjectService(req.body, req.user);
     return res.status(200).json(result);
   } catch (error) {
     return handleServiceError(res, error);
@@ -37,7 +37,7 @@ export const createProject = async (req, res) => {
 
 export const submitProject = async (req, res) => {
   try {
-    const result = await submitProjectService(req.body);
+    const result = await submitProjectService(req.body, req.user);
     return res.status(200).json(result);
   } catch (error) {
     return handleServiceError(res, error);
@@ -46,7 +46,7 @@ export const submitProject = async (req, res) => {
 
 export const approveSubmission = async (req, res) => {
   try {
-    const result = await approveSubmissionService(req.params.id);
+    const result = await approveSubmissionService(req.params.id, req.user);
     return res.status(200).json(result);
   } catch (error) {
     return handleServiceError(res, error);
@@ -55,7 +55,7 @@ export const approveSubmission = async (req, res) => {
 
 export const rejectSubmission = async (req, res) => {
   try {
-    const result = await rejectSubmissionService(req.params.id);
+    const result = await rejectSubmissionService(req.params.id, req.user);
     return res.status(200).json(result);
   } catch (error) {
     return handleServiceError(res, error);

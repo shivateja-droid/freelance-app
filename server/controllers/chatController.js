@@ -3,7 +3,7 @@ import { handleServiceError } from './handleServiceError.js';
 
 export const fetchChats = async (req, res) => {
   try {
-    const chats = await fetchChatsByIdService(req.params.id);
+    const chats = await fetchChatsByIdService(req.params.id, req.user);
     return res.status(200).json(chats);
   } catch (error) {
     return handleServiceError(res, error);

@@ -89,18 +89,6 @@ const Register = ({ setAuthType }) => {
                           </div>
                         </div>
                       </li>
-                      <li>
-                        <div  className="theme-dropdown-option flex p-2">
-                          <div className="flex items-center h-5">
-                            <input onChange={(e) => setUsertype(e.target.value)} checked={usertype === "admin"} id="helper-radio-6" name="helper-radio" type="radio" value="admin" className="theme-radio w-4 h-4 border-gray-300 bg-gray-100 focus:ring-2" />
-                          </div>
-                          <div onClick={() => setDropdownOpen(!dropdownOpen)} className="ms-2 text-sm ">
-                            <label htmlFor="helper-radio-6" className="font-medium text-gray-900">
-                              <div>admin</div>
-                            </label>
-                          </div>
-                        </div>
-                      </li>
                     </ul>
                   </div>
                 </div>

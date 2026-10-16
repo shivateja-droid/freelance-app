@@ -27,7 +27,7 @@ const MyApplications = () => {
       </div>
       <div className='grid min-h-[200px] grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3'>
         {applications.length === 0 && <p className='theme-muted-text flex justify-center text-center'>No applications found</p>}
-        {applications.filter((application) => application.freelancerId === localStorage.getItem('userId')).map((application) => (
+        {applications.map((application) => (
           <div key={application._id} className='theme-card flex min-h-[150px] cursor-pointer flex-col justify-between gap-4 overflow-auto rounded-xl p-4 scrollbar-hide xl:flex-row'>
             <div className='flex flex-1 flex-col'>
               <h3 className='mb-3 text-lg font-bold'>{application.title.slice(0, 10)}...</h3>

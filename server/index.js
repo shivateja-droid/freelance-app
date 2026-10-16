@@ -11,6 +11,7 @@ import chatRoutes from './routes/chatRoutes.js';
 import freelancerRoutes from './routes/freelancerRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import SocketHandler from './SocketHandler.js';
+import { authenticateToken } from './middleware/authMiddleware.js';
 
 dotenv.config();
 
@@ -32,6 +33,13 @@ app.use(applicationRoutes);
 app.use(adminRoutes);
 app.use(chatRoutes);
 
+app.use((error, _req, res, next) => {
+  if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
+    return res.status(400).json({ error: 'Invalid request data', details: [{ field: 'body', message: 'Malformed JSON body' }] });
+  }
+  return next(error);
+});
+
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -39,6 +47,15 @@ const io = new Server(server, {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   },
+});
+
+io.use(async (socket, next) => {
+  try {
+    socket.user = await authenticateToken(socket.handshake.auth?.token);
+    return next();
+  } catch {
+    return next(new Error('Authentication required'));
+  }
 });
 
 io.on('connection', (socket) => {
@@ -49,6 +66,10 @@ io.on('connection', (socket) => {
 
 const startServer = async () => {
   try {
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET is not defined');
+    }
+
     await connectDB();
     server.listen(PORT, () => {
       console.log(`Running @ ${PORT}`);
