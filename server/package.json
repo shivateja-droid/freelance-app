@@ -6,9 +6,12 @@
   "author": "",
   "type": "module",
   "main": "index.js",
+  "engines": {
+    "node": ">=22.12.0 <25"
+  },
   "scripts": {
-    "test": "node --test --test-concurrency=1 test/auth-validation.test.js test/lifecycle.test.js test/chat.test.js test/observability.test.js",
-    "test:watch": "node --test --watch --test-concurrency=1 test/auth-validation.test.js test/lifecycle.test.js test/chat.test.js test/observability.test.js",
+    "test": "node --test --test-concurrency=1 test/auth-validation.test.js test/lifecycle.test.js test/chat.test.js test/chat-rate-limit.test.js test/shutdown.test.js test/observability.test.js test/cors.test.js test/runtime.test.js test/project-security.test.js test/application-index-migration.test.js",
+    "test:watch": "node --test --watch --test-concurrency=1 test/auth-validation.test.js test/lifecycle.test.js test/chat.test.js test/chat-rate-limit.test.js test/shutdown.test.js test/observability.test.js test/cors.test.js test/runtime.test.js test/project-security.test.js test/application-index-migration.test.js",
     "docs:check": "node scripts/check-openapi.js",
     "start": "node index.js",
     "dev": "nodemon index.js",
@@ -21,7 +24,11 @@
     "db:audit:relations": "node scripts/audit-relations.js",
     "db:migrate:relation-indexes": "node migrations/20261004-canonical-indexes.js",
     "db:migrate:relation-indexes:apply": "node migrations/20261004-canonical-indexes.js --apply",
-    "db:rollback:relation-indexes": "node migrations/20261004-canonical-indexes.js --rollback"
+    "db:rollback:relation-indexes": "node migrations/20261004-canonical-indexes.js --rollback",
+    "db:migrate:application-active-index": "node migrations/20261017-application-active-index.js",
+    "db:inspect:application-active-index": "node migrations/20261017-application-active-index.js --inspect",
+    "db:migrate:application-active-index:apply": "node migrations/20261017-application-active-index.js --apply",
+    "db:rollback:application-active-index": "node migrations/20261017-application-active-index.js --rollback"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -29,6 +36,8 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
     "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.19.1",

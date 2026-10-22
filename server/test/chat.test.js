@@ -1,6 +1,8 @@
 import test, { after, before, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { io as socketClient } from 'socket.io-client';
+import { CHAT_HISTORY_LIMIT, CHAT_MESSAGE_RATE_LIMIT } from '../config/chat.js';
+import { stopChatMessageRateLimiter } from '../SocketHandler.js';
 import {
   Chat,
   clearDatabase,
@@ -31,6 +33,7 @@ beforeEach(clearDatabase);
 after(async () => {
   await io.close();
   await new Promise((resolve) => server.close(resolve));
+  stopChatMessageRateLimiter();
   await stopTestDatabase();
 });
 
@@ -54,6 +57,10 @@ test('blocks nonparticipants and assigns chat sender from the authenticated sock
 
   const clientSocket = await connect(tokenFor(client));
   try {
+    const joined = new Promise((resolve) => clientSocket.once('messages-updated', resolve));
+    clientSocket.emit('join-chat-room-client', { projectId: project._id.toString() });
+    await joined;
+
     const validationError = new Promise((resolve) => clientSocket.once('request-error', resolve));
     clientSocket.emit('new-message', { projectId: project._id.toString(), message: 'Spoof attempt', sender: outsider._id.toString() });
     const error = await validationError;
@@ -73,6 +80,66 @@ test('blocks nonparticipants and assigns chat sender from the authenticated sock
     ]);
     assert.equal(chat.messages[0].sender.toString(), client._id.toString());
     assert.equal(chat.messages[0].text, 'Authenticated sender message');
+  } finally {
+    clientSocket.disconnect();
+  }
+});
+
+test('applies the message limit across multiple sockets for one authenticated user', async () => {
+  const client = await createUser({ username: 'Rate Limited Client', email: 'rate-client@example.com', usertype: 'client' });
+  const freelancer = await createUser({ username: 'Rate Limited Freelancer', email: 'rate-freelancer@example.com', usertype: 'freelancer' });
+  const project = await createAssignedProject({ client, freelancer });
+  const firstSocket = await connect(tokenFor(client));
+  const secondSocket = await connect(tokenFor(client));
+  const errors = [];
+  firstSocket.on('request-error', (error) => errors.push(error));
+  secondSocket.on('request-error', (error) => errors.push(error));
+
+  try {
+    for (let index = 0; index < CHAT_MESSAGE_RATE_LIMIT + 2; index += 1) {
+      (index % 2 === 0 ? firstSocket : secondSocket).emit('new-message', {
+        projectId: project._id.toString(),
+        message: `Rate test ${index}`,
+      });
+    }
+    await waitFor(() => errors.length >= 2);
+    assert.equal(errors[0].error, 'Too many messages');
+    assert.ok((await Chat.findOne({ project: project._id })).messages.length <= CHAT_MESSAGE_RATE_LIMIT);
+  } finally {
+    firstSocket.disconnect();
+    secondSocket.disconnect();
+  }
+});
+
+test('keeps chat history bounded during concurrent message writes', async () => {
+  const client = await createUser({ username: 'History Client', email: 'history-client@example.com', usertype: 'client' });
+  const freelancer = await createUser({ username: 'History Freelancer', email: 'history-freelancer@example.com', usertype: 'freelancer' });
+  const project = await createAssignedProject({ client, freelancer });
+  await Chat.create({
+    _id: 'history-chat',
+    project: project._id,
+    messages: Array.from({ length: CHAT_HISTORY_LIMIT }, (_, index) => ({
+      id: `existing-${index}`,
+      text: `Existing ${index}`,
+      sender: client._id,
+      time: new Date(),
+    })),
+  });
+  const clientSocket = await connect(tokenFor(client));
+
+  try {
+    for (let index = 0; index < CHAT_MESSAGE_RATE_LIMIT; index += 1) {
+      clientSocket.emit('new-message', {
+        projectId: project._id.toString(),
+        message: `Concurrent ${index}`,
+      });
+    }
+    await waitFor(async () => {
+      const chat = await Chat.findOne({ project: project._id });
+      return chat?.messages.filter(({ text }) => text.startsWith('Concurrent')).length === CHAT_MESSAGE_RATE_LIMIT;
+    });
+    const chat = await Chat.findOne({ project: project._id });
+    assert.equal(chat.messages.length, CHAT_HISTORY_LIMIT);
   } finally {
     clientSocket.disconnect();
   }

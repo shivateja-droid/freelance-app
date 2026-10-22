@@ -32,12 +32,19 @@ export const registerUserService = async ({ username, email, password, usertype 
     throw error;
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+  if (await User.exists({ email: normalizedEmail })) {
+    const error = new Error('An account with this email already exists');
+    error.status = 409;
+    throw error;
+  }
+
   const salt = await bcrypt.genSalt(12);
   const passwordHash = await bcrypt.hash(password, salt);
 
   const newUser = new User({
     username,
-    email: email.trim().toLowerCase(),
+    email: normalizedEmail,
     password: passwordHash,
     usertype,
   });
@@ -57,7 +64,7 @@ export const loginUserService = async ({ email, password }) => {
   const user = await User.findOne({ email: email.trim().toLowerCase() });
 
   if (!user) {
-    const error = new Error('User does not exist');
+    const error = new Error('Invalid email or password.');
     error.status = 400;
     error.responseKey = 'msg';
     throw error;
@@ -66,7 +73,7 @@ export const loginUserService = async ({ email, password }) => {
   const isMatch = await bcrypt.compare(password, user.password);
 
   if (!isMatch) {
-    const error = new Error('Invalid credentials');
+    const error = new Error('Invalid email or password.');
     error.status = 400;
     error.responseKey = 'msg';
     throw error;

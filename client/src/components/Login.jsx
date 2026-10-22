@@ -1,12 +1,31 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { GeneralContext } from '../context/GeneralContext.jsx';
 
 const Login = ({ setAuthType }) => {
-  const { login, setEmail, setPassword } = useContext(GeneralContext);
+  const [formError, setFormError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login, email, setEmail, password, setPassword } = useContext(GeneralContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    await login();
+    setFormError('');
+    setEmailError('');
+
+    if (!email.trim() || !password) {
+      setFormError('Please enter your email and password.');
+      return;
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      setEmailError('Please enter a valid email address.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const result = await login();
+    setIsSubmitting(false);
+    if (!result?.success) setFormError(result?.message || 'Unable to complete login. Please try again.');
   };
 
   return (
@@ -18,23 +37,27 @@ const Login = ({ setAuthType }) => {
               <h1 className="theme-heading text-xl font-bold leading-tight tracking-tight md:text-2xl">
                 Sign in to your account
               </h1>
-              <form className="space-y-4 md:space-y-6" action="#">
+              <form className="space-y-4 md:space-y-6" onSubmit={handleLogin}>
+                {formError && <div className='text-sm text-red-600' role='alert'>{formError}</div>}
                 <div>
                   <label htmlFor="email" className="theme-heading block mb-2 text-sm font-medium">Your email</label>
                   <input
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => { setEmail(e.target.value); setFormError(''); setEmailError(''); }}
                     type="email"
                     name="email"
                     id="email"
                     className="theme-input block w-full rounded-xl p-2.5"
+                    aria-invalid={Boolean(emailError)}
+                    aria-describedby="email-error"
                     placeholder="name@gmail.com"
                     required=""
                   />
+                  {emailError && <p id="email-error" className="mt-2 text-sm text-red-600" role="alert">{emailError}</p>}
                 </div>
                 <div>
                   <label htmlFor="password" className="theme-heading block mb-2 text-sm font-medium">Password</label>
                   <input
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => { setPassword(e.target.value); setFormError(''); }}
                     type="password"
                     name="password"
                     id="password"
@@ -54,7 +77,9 @@ const Login = ({ setAuthType }) => {
                   </div>
                   <a href="#" className="theme-link text-sm font-medium">Forgot password?</a>
                 </div>
-                <button onClick={handleLogin} type="submit" className="theme-button-primary w-full px-5 py-2.5 text-center text-sm font-medium">Sign in</button>
+                <button type="submit" disabled={isSubmitting} className="theme-button-primary w-full px-5 py-2.5 text-center text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60">
+                  {isSubmitting ? 'Signing in...' : 'Sign in'}
+                </button>
                 <p className="text-sm font-light text-black">
                   Don&apos;t have an account yet? <a onClick={() => setAuthType('register')} className="theme-link cursor-pointer font-medium">Sign up</a>
                 </p>

@@ -20,35 +20,45 @@ export const createBidService = async ({ projectId, proposal, bidAmount, estimat
     throw error;
   }
 
-  await withLoggedTransaction('create_bid', async (session) => {
-      const existingApplication = await Application.exists({
-        project: project._id,
-        freelancer: freelancerUser._id,
-      }).session(session);
-      if (existingApplication) {
-        const error = new Error('You have already applied to this project');
-        error.status = 409;
-        throw error;
-      }
+  try {
+    await withLoggedTransaction('create_bid', async (session) => {
+        const existingApplication = await Application.exists({
+          project: project._id,
+          freelancer: freelancerUser._id,
+          status: { $in: ['Pending', 'Accepted'] },
+        }).session(session);
+        if (existingApplication) {
+          const error = new Error('You have already applied to this project');
+          error.status = 409;
+          throw error;
+        }
 
-      await Application.create([{
-        project: project._id,
-        client: client._id,
-        freelancer: freelancerUser._id,
-        clientName: client.username,
-        clientEmail: client.email,
-        freelancerName: freelancerUser.username,
-        freelancerEmail: freelancerUser.email,
-        freelancerSkills: freelancer.skills,
-        title: project.title,
-        description: project.description,
-        budget: project.budget,
-        requiredSkills: project.skills,
-        proposal,
-        bidAmount,
-        estimatedTime,
-      }], { session });
-  });
+        await Application.create([{
+          project: project._id,
+          client: client._id,
+          freelancer: freelancerUser._id,
+          clientName: client.username,
+          clientEmail: client.email,
+          freelancerName: freelancerUser.username,
+          freelancerEmail: freelancerUser.email,
+          freelancerSkills: freelancer.skills,
+          title: project.title,
+          description: project.description,
+          budget: project.budget,
+          requiredSkills: project.skills,
+          proposal,
+          bidAmount,
+          estimatedTime,
+        }], { session });
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      const duplicateError = new Error('You have already applied to this project');
+      duplicateError.status = 409;
+      throw duplicateError;
+    }
+    throw error;
+  }
 
   return { message: 'bidding successful' };
 };

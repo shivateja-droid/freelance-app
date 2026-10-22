@@ -1,67 +1,70 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
+import { toast } from 'sonner';
+import { getSafeErrorMessage } from '../../utils/notifications.js';
 
 const ProjectApplications = () => {
   const [applications, setApplications] = useState([]);
   const [displayApplications, setDisplayApplications] = useState([]);
-  const [projectTitles, setProjectTitles] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [pendingApplicationId, setPendingApplicationId] = useState(null);
+  const actionLock = useRef(new Set());
   const BASE_URI = import.meta.env.VITE_API_URL;
+
+  const fetchApplications = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError('');
+    try {
+      const response = await axios.get(`${BASE_URI}/fetch-applications`);
+      setApplications(response.data);
+      setDisplayApplications([...response.data].reverse());
+      return true;
+    } catch (error) {
+      const message = getSafeErrorMessage(error, 'Unable to load applications.');
+      setLoadError(message);
+      toast.error(message);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [BASE_URI]);
 
   useEffect(() => {
     document.title = "Project Applications - KaamSetu";
-    fetchApplications();
-  }, []);
+    void fetchApplications();
+  }, [fetchApplications]);
 
-  const fetchApplications = async () => {
-    await axios
-      .get(`${BASE_URI}/fetch-applications`)
-      .then((response) => {
-        setApplications(response.data);
-        setDisplayApplications([...response.data].reverse());
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  useEffect(() => {
-    if (applications.length > 0) {
-      applications.forEach((application) => {
-        if (!projectTitles.includes(application.title)) {
-          setProjectTitles((prev) => [...prev, application.title]);
-        }
-      });
-    }
-  }, [applications]);
-
-  useEffect(() => {
-    if (projectTitles.length > 0) {
-      projectTitles.filter((title) => !projectTitles.includes(title));
-    }
-  }, [projectTitles]);
+  const projectTitles = [...new Set(applications.map((application) => application.title))];
 
   const handleApprove = async (id) => {
-    await axios
-      .get(`${BASE_URI}/approve-application/${id}`)
-      .then(() => {
-        alert("Application approved");
-        fetchApplications();
-      })
-      .catch(() => {
-        alert("Operation failed!!");
-      });
+    if (actionLock.current.has(id)) return;
+    actionLock.current.add(id);
+    setPendingApplicationId(id);
+    try {
+      await axios.get(`${BASE_URI}/approve-application/${id}`);
+      if (await fetchApplications()) toast.success('Application approved.');
+    } catch (error) {
+      toast.error(getSafeErrorMessage(error, 'Unable to approve the application.'));
+    } finally {
+      actionLock.current.delete(id);
+      setPendingApplicationId(null);
+    }
   };
 
   const handleReject = async (id) => {
-    await axios
-      .get(`${BASE_URI}/reject-application/${id}`)
-      .then(() => {
-        alert("Application rejected!!");
-        fetchApplications();
-      })
-      .catch(() => {
-        alert("Operation failed!!");
-      });
+    if (actionLock.current.has(id)) return;
+    actionLock.current.add(id);
+    setPendingApplicationId(id);
+    try {
+      await axios.get(`${BASE_URI}/reject-application/${id}`);
+      if (await fetchApplications()) toast.success('Application rejected.');
+    } catch (error) {
+      toast.error(getSafeErrorMessage(error, 'Unable to reject the application.'));
+    } finally {
+      actionLock.current.delete(id);
+      setPendingApplicationId(null);
+    }
   };
 
   const handleFilterChange = (value) => {
@@ -74,7 +77,7 @@ const ProjectApplications = () => {
 
   return (
     <div className='theme-page-shell page-scroll-frame m-3 rounded-2xl p-4 sm:m-5 sm:p-5'>
-      {projectTitles ? (
+      {projectTitles.length > 0 ? (
         <div className='mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-center'>
           <h3 className='theme-heading text-lg font-bold'>Applications</h3>
           <select className='theme-select form-control w-full rounded-xl p-2 sm:w-auto' onChange={(e) => handleFilterChange(e.target.value)}>
@@ -85,8 +88,10 @@ const ProjectApplications = () => {
           </select>
         </div>
       ) : ""}
+      {loadError && <p className='theme-muted-text mb-4 text-center' role="alert">{loadError}</p>}
       <div className='grid min-h-[200px] grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3'>
-        {applications.length === 0 && <p className='theme-muted-text flex justify-center text-center'>No applications found</p>}
+        {isLoading && applications.length === 0 && <p className='theme-muted-text flex justify-center text-center'>Loading applications...</p>}
+        {!isLoading && applications.length === 0 && <p className='theme-muted-text flex justify-center text-center'>No applications found</p>}
         {displayApplications.map((application) => (
           <div key={application._id} className='theme-card flex min-h-[150px] flex-col gap-4 overflow-auto rounded-xl p-4 scrollbar-hide xl:flex-row'>
             <div className='flex flex-1 flex-col'>
@@ -114,8 +119,8 @@ const ProjectApplications = () => {
               <div className="approve-btns">
                 {application.status === 'Pending' ? (
                   <div className='flex flex-col gap-2 sm:flex-row'>
-                    <button className='theme-button-primary px-4 py-2' onClick={() => handleApprove(application._id)}>Approve</button>
-                    <button className='theme-button-secondary px-4 py-2' onClick={() => handleReject(application._id)}>Decline</button>
+                    <button className='theme-button-primary px-4 py-2 disabled:cursor-not-allowed disabled:opacity-60' disabled={pendingApplicationId === application._id} onClick={() => handleApprove(application._id)}>{pendingApplicationId === application._id ? 'Saving...' : 'Approve'}</button>
+                    <button className='theme-button-secondary px-4 py-2 disabled:cursor-not-allowed disabled:opacity-60' disabled={pendingApplicationId === application._id} onClick={() => handleReject(application._id)}>Decline</button>
                   </div>
                 ) : (
                   <h6>Status: <span className={`mb-2 ${application.status === 'Accepted' ? 'theme-status-complete' : 'text-red-500'}`}>{application.status}</span></h6>

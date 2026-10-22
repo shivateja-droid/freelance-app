@@ -68,6 +68,7 @@ applicationSchema.index(
     partialFilterExpression: {
       project: { $exists: true },
       freelancer: { $exists: true },
+      status: { $in: ['Pending', 'Accepted'] },
     },
   },
 );

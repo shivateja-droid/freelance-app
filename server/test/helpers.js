@@ -6,6 +6,9 @@ import { MongoMemoryReplSet } from 'mongodb-memory-server';
 
 process.env.JWT_SECRET = 'kaamsetu-test-jwt-secret';
 process.env.LOG_LEVEL = 'silent';
+process.env.CLIENT_ORIGINS = 'https://kaamsetu-wheat.vercel.app';
+process.env.ALLOW_LOCAL_ORIGIN = 'true';
+process.env.NODE_ENV = 'test';
 
 const { Application, Chat, Freelancer, Project, User } = await import('../Schema.js');
 const { app, io, server } = await import('../index.js');

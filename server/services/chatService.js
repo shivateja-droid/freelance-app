@@ -1,4 +1,5 @@
 import { Chat, Project } from '../Schema.js';
+import { CHAT_HISTORY_LIMIT } from '../config/chat.js';
 
 export const fetchChatsByIdService = async (chatId, user) => {
   const project = await Project.findById(chatId);
@@ -14,5 +15,9 @@ export const fetchChatsByIdService = async (chatId, user) => {
     throw error;
   }
 
-  return Chat.findOne({ project: project._id });
+  return Chat.findOneAndUpdate(
+    { project: project._id },
+    { $push: { messages: { $each: [], $slice: -CHAT_HISTORY_LIMIT } } },
+    { new: true },
+  );
 };

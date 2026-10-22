@@ -10,19 +10,19 @@ import { handleServiceError } from './handleServiceError.js';
 
 export const fetchProject = async (req, res) => {
   try {
-    const project = await fetchProjectByIdService(req.params.id);
+    const project = await fetchProjectByIdService(req.params.id, req.user);
     return res.status(200).json(project);
   } catch (error) {
     return handleServiceError(req, res, error);
   }
 };
 
-export const fetchProjects = async (_req, res) => {
+export const fetchProjects = async (req, res) => {
   try {
-    const projects = await fetchProjectsService();
+    const projects = await fetchProjectsService(req.user);
     return res.status(200).json(projects);
   } catch (error) {
-    return handleServiceError(_req, res, error);
+    return handleServiceError(req, res, error);
   }
 };
 

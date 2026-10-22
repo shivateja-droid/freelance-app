@@ -67,19 +67,26 @@ const GeneralContextProvider = ({ children }) => {
 
     const login = async () => {
         try {
-            const loginInputs = { email, password }
-            await axios.post(`${BASE_URI}/login`, loginInputs)
-                .then(async (res) => {
+            if (!email.trim() || !password) {
+                return { success: false, message: 'Please enter your email and password.' };
+            }
 
-                    storeSession(res.data);
-                    navigateForUser(res.data.user);
-                }).catch((err) => {
-                    alert("login failed!!");
-                    console.log(err);
-                });
-
+            const response = await axios.post(`${BASE_URI}/login`, { email, password });
+            storeSession(response.data);
+            navigateForUser(response.data.user);
+            return { success: true };
         } catch (err) {
-            console.log(err);
+            const responseData = err.response?.data;
+            const serverMessage = responseData?.msg || responseData?.details?.[0]?.message;
+            const message = err.response?.status === 400 && serverMessage
+                ? serverMessage
+                : err.response?.status === 401
+                    ? 'Invalid email or password.'
+                    : err.response
+                        ? 'Unable to complete login. Please try again.'
+                        : 'Unable to connect to the server. Please try again.';
+
+            return { success: false, message };
         }
     }
 
@@ -87,17 +94,29 @@ const GeneralContextProvider = ({ children }) => {
 
     const register = async () => {
         try {
-            await axios.post(`${BASE_URI}/register`, inputs)
-                .then(async (res) => {
-                    storeSession(res.data);
-                    navigateForUser(res.data.user);
-
-                }).catch((err) => {
-                    alert("registration failed!!");
-                    console.log(err);
-                });
+            const response = await axios.post(`${BASE_URI}/register`, inputs);
+            storeSession(response.data);
+            navigateForUser(response.data.user);
+            return { success: true };
         } catch (err) {
-            console.log(err);
+            const responseData = err.response?.data;
+            const details = Array.isArray(responseData?.details) ? responseData.details : [];
+            const fieldErrors = Object.fromEntries(
+                details
+                    .filter((detail) => detail.field && detail.message)
+                    .map((detail) => [detail.field, detail.message]),
+            );
+            const responseMessage = details[0]?.message
+                || responseData?.msg
+                || (responseData?.error !== 'Internal server error' ? responseData?.error : null);
+
+            return {
+                success: false,
+                message: responseMessage || (err.response
+                    ? 'Registration could not be completed. Please check your details and try again.'
+                    : 'Unable to reach the server. Please check your connection and try again.'),
+                fieldErrors,
+            };
         }
     }
 

@@ -72,3 +72,53 @@ test('rejects malformed JSON, protected fields, and invalid identifiers', async 
 
   await request(app).get('/fetch-project/not-an-object-id').set('Authorization', authorization).expect(400);
 });
+
+test('returns a safe conflict for duplicate registration email', async () => {
+  await createUser({ username: 'Existing User', email: 'existing@example.com', usertype: 'client' });
+
+  const response = await request(app)
+    .post('/register')
+    .send({ username: 'Another User', email: 'EXISTING@example.com', password: 'password123', usertype: 'client' })
+    .expect(409);
+
+  assert.deepEqual(response.body, { error: 'An account with this email already exists' });
+});
+
+test('enforces the eight-character registration password minimum', async () => {
+  const tooShort = await request(app)
+    .post('/register')
+    .send({ username: 'Short Password', email: 'short@example.com', password: '1234567', usertype: 'client' })
+    .expect(400);
+  assert.deepEqual(tooShort.body.details[0], {
+    field: 'password',
+    message: 'Password must be at least 8 characters',
+  });
+
+  await request(app)
+    .post('/register')
+    .send({ username: 'Eight Characters', email: 'eight@example.com', password: '12345678', usertype: 'client' })
+    .expect(200);
+});
+
+test('uses the same safe login error for unknown email and wrong password', async () => {
+  await createUser({ username: 'Login User', email: 'login@example.com', usertype: 'client', password: 'password123' });
+
+  const wrongPassword = await request(app)
+    .post('/login')
+    .send({ email: 'login@example.com', password: 'wrong-password' })
+    .expect(400);
+  const unknownEmail = await request(app)
+    .post('/login')
+    .send({ email: 'unknown@example.com', password: 'wrong-password' })
+    .expect(400);
+
+  assert.deepEqual(wrongPassword.body, { msg: 'Invalid email or password.' });
+  assert.deepEqual(unknownEmail.body, wrongPassword.body);
+});
+
+test('rejects missing login fields through backend validation', async () => {
+  const response = await request(app).post('/login').send({}).expect(400);
+  assert.equal(response.body.error, 'Invalid request data');
+  assert.ok(response.body.details.some((detail) => detail.field === 'email'));
+  assert.ok(response.body.details.some((detail) => detail.field === 'password'));
+});

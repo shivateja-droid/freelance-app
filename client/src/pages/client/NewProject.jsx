@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { getSafeErrorMessage } from '../../utils/notifications.js';
 
 const NewProject = () => {
   const [projectName, setProjectName] = useState('');
@@ -13,26 +15,20 @@ const NewProject = () => {
     document.title = "Create New Project - KaamSetu";
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const BASE_URI = import.meta.env.VITE_API_URL;
-    axios.post(`${BASE_URI}/new-project`, {
-      title: projectName,
-      description,
-      budget,
-      skills,
-    })
-      .then(() => {
-        alert("Project created successfully");
-        setProjectName('');
-        setDescription('');
-        setBudget('');
-        setSkills('');
-        navigate('/client');
-      })
-      .catch(() => {
-        alert("Error creating project");
-      });
+    try {
+      await axios.post(`${BASE_URI}/new-project`, { title: projectName, description, budget, skills });
+      toast.success('Project created successfully.');
+      setProjectName('');
+      setDescription('');
+      setBudget('');
+      setSkills('');
+      navigate('/client');
+    } catch (error) {
+      toast.error(getSafeErrorMessage(error, 'Unable to create the project. Please try again.'));
+    }
   };
 
   return (

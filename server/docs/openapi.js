@@ -126,7 +126,7 @@ const openapi = {
     '/fetch-project/{id}': {
       get: {
         tags: ['Projects'], summary: 'Get a project by id', security: bearerAuth, parameters: [idParameter],
-        responses: { 200: { description: 'Project, or `null` when no project exists for a valid id.', content: { 'application/json': { schema: { anyOf: [{ $ref: '#/components/schemas/Project' }, { type: 'null' }] } } } }, 400: validationError, 401: { $ref: '#/components/responses/AuthenticationError' } },
+        responses: { 200: { description: 'Project details visible to the authenticated user.', content: { 'application/json': { schema: { $ref: '#/components/schemas/Project' } } } }, 400: validationError, 401: { $ref: '#/components/responses/AuthenticationError' }, 403: errorResponse('The authenticated user may not view this project.', 'You are not authorized to view this project'), 404: errorResponse('No project exists for the supplied valid id.', 'Project not found') },
       },
     },
     '/new-project': {
@@ -152,7 +152,7 @@ const openapi = {
     '/reject-submission/{id}': {
       get: {
         tags: ['Projects'], summary: 'Reject a project submission', description: 'Client only and limited to the project owner. This clears the stored submission fields.', security: bearerAuth, parameters: [idParameter],
-        responses: { 200: messageResponse('submission approved', 'The current implementation returns this legacy success message after rejection.'), 400: validationError, 401: { $ref: '#/components/responses/AuthenticationError' }, 403: errorResponse('The caller does not own the project.', 'You do not own this project'), 404: errorResponse('Project does not exist.', 'Project not found') },
+        responses: { 200: messageResponse('submission rejected'), 400: validationError, 401: { $ref: '#/components/responses/AuthenticationError' }, 403: errorResponse('The caller does not own the project.', 'You do not own this project'), 404: errorResponse('Project does not exist.', 'Project not found'), 409: errorResponse('The submission was already processed or is not awaiting review.', 'This submission is not awaiting client review') },
       },
     },
     '/make-bid': {

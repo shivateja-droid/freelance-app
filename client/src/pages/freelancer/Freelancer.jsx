@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'sonner';
+import { getSafeErrorMessage } from '../../utils/notifications.js';
 
 const Freelancer = () => {
   const navigate = useNavigate();
@@ -52,9 +54,11 @@ const Freelancer = () => {
           setDescription(response.data.description);
           setUpdateSkills(response.data.skills.join(', '));
           setUpdateDescription(response.data.description);
-          alert("User data updated");
+          toast.success('Profile updated successfully.');
         }
-      );
+      ).catch((error) => {
+        toast.error(getSafeErrorMessage(error, 'Unable to update your profile.'));
+      });
   };
 
   const fetchApplications = async () => {

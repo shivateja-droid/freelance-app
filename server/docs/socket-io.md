@@ -37,3 +37,5 @@ Authorization failures and unavailable projects for otherwise well-formed Socket
 | `user-joined-room` | No payload | Another socket joined the same project room. |
 
 The server, not the client, writes `messages[].sender` from the authenticated socket user, trims message text, generates message ids, and sets message time. Client payloads that include sender or other unexpected fields are rejected by strict validation.
+
+Chat messages are limited to 20 accepted messages per authenticated user per 10 seconds across all of that user's sockets. A throttled event receives the existing `request-error` event with `error: "Too many messages"`. Each conversation retains only its most recent 100 messages. The cap is applied atomically with MongoDB `$push` and `$slice`, including concurrent message writes; older messages are intentionally discarded and are not recoverable through this API. The in-memory limiter periodically removes expired users, caps tracked users at 10,000, and is process-local rather than distributed across backend instances. Shutdown clears the limiter and its cleanup timer.

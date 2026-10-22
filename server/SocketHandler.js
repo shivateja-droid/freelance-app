@@ -3,6 +3,12 @@ import { v4 as uuid } from 'uuid';
 import { validateSocketPayload } from './middleware/validateRequest.js';
 import { schemas } from './validation/schemas.js';
 import { logger } from './observability/logger.js';
+import {
+  CHAT_HISTORY_LIMIT,
+  createMessageRateLimiter,
+} from './config/chat.js';
+
+const messageRateLimiter = createMessageRateLimiter();
 
 const socketValidationError = (socket, result) => {
   socket.emit('request-error', {
@@ -15,10 +21,10 @@ const ensureChatExists = async (projectId) => {
   return Chat.findOneAndUpdate(
     { project: projectId },
     {
+      $push: { messages: { $each: [], $slice: -CHAT_HISTORY_LIMIT } },
       $setOnInsert: {
         _id: uuid(),
         project: projectId,
-        messages: [],
       },
     },
     {
@@ -26,6 +32,13 @@ const ensureChatExists = async (projectId) => {
       upsert: true,
     },
   );
+};
+
+const socketRateLimitError = (socket) => {
+  socket.emit('request-error', {
+    error: 'Too many messages',
+    details: [{ field: 'message', message: 'Please slow down and try again later' }],
+  });
 };
 
 const getParticipantProject = async (projectId, user) => {
@@ -120,6 +133,10 @@ const SocketHandler = (socket) => {
         logSocketAuthorizationDenied(socket, 'new-message', projectId);
         return;
       }
+      if (!messageRateLimiter.consume(socket.user._id.toString())) {
+        socketRateLimitError(socket);
+        return;
+      }
 
       const chat = await Chat.findOneAndUpdate(
         { project: projectId },
@@ -127,10 +144,13 @@ const SocketHandler = (socket) => {
           $setOnInsert: { _id: uuid(), project: projectId },
           $push: {
             messages: {
-              id: uuid(),
-              text: message.trim(),
-              sender: socket.user._id,
-              time: new Date(),
+              $each: [{
+                id: uuid(),
+                text: message.trim(),
+                sender: socket.user._id,
+                time: new Date(),
+              }],
+              $slice: -CHAT_HISTORY_LIMIT,
             },
           },
         },
@@ -147,5 +167,7 @@ const SocketHandler = (socket) => {
     }
   });
 };
+
+export const stopChatMessageRateLimiter = () => messageRateLimiter.stop();
 
 export default SocketHandler;

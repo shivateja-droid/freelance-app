@@ -1,19 +1,42 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'sonner';
+import { getSafeErrorMessage } from '../../utils/notifications.js';
 import { GeneralContext } from '../../context/GeneralContext';
 
 const ProjectData = () => {
   const { socket } = useContext(GeneralContext);
   const params = useParams();
   const [project, setProject] = useState();
+  const [projectId, setProjectId] = useState(params['id']);
+  const [projectLoadState, setProjectLoadState] = useState('loading');
   const BASE_URI = import.meta.env.VITE_API_URL;
   const canAccessChat = project?.freelancer === localStorage.getItem('userId');
   const [hasApplied, setHasApplied] = useState(false);
 
+  const fetchProject = useCallback(async (id) => {
+    setProjectLoadState('loading');
+    setProject(undefined);
+    setHasApplied(false);
+    try {
+      const response = await axios.get(`${BASE_URI}/fetch-project/${id}`);
+      setProject(response.data);
+      setProjectId(response.data._id);
+      setProjectLoadState('ready');
+      return response.data;
+    } catch (error) {
+      setProjectLoadState(error?.response?.status === 404 ? 'not-found' : 'error');
+      toast.error(error?.response?.status === 404
+        ? 'Project not found.'
+        : getSafeErrorMessage(error, 'Unable to load this project.'));
+      return null;
+    }
+  }, [BASE_URI]);
+
   useEffect(() => {
     fetchProject(params['id']);
-  }, [params]);
+  }, [fetchProject, params]);
 
   useEffect(() => { document.title = "Project Details - KaamSetu"; }, []);
 
@@ -25,64 +48,69 @@ const ProjectData = () => {
     socket.emit("join-chat-room", { projectId: params['id'] });
   };
 
-  const fetchProject = async (id) => {
-    await axios.get(`${BASE_URI}/fetch-project/${id}`).then(
-      (response) => {
-        setProject(response.data);
-        setProjectId(response.data._id);
-      }
-    ).catch((err) => {
-      console.log(err);
-    });
-  };
-
-  const [projectId, setProjectId] = useState(params['id']);
   const [proposal, setProposal] = useState('');
   const [bidAmount, setBidAmount] = useState('');
   const [estimatedTime, setEstimatedTime] = useState('');
+  const [isSubmittingBid, setIsSubmittingBid] = useState(false);
+  const bidLock = useRef(false);
 
   const handleBidding = async () => {
-    await axios.post(`${BASE_URI}/make-bid`, { projectId, proposal, bidAmount, estimatedTime }).then(
-      () => {
-        setProposal('');
-        setBidAmount('');
-        setEstimatedTime('');
-        setHasApplied(true);
-        alert("Bidding successful!!");
-      }
-    ).catch(() => {
-      alert("Bidding failed!! Try again!");
-    });
+    if (bidLock.current) return;
+    bidLock.current = true;
+    setIsSubmittingBid(true);
+    try {
+      await axios.post(`${BASE_URI}/make-bid`, { projectId, proposal, bidAmount, estimatedTime });
+      setProposal('');
+      setBidAmount('');
+      setEstimatedTime('');
+      setHasApplied(true);
+      toast.success('Bid submitted successfully.');
+    } catch (error) {
+      toast.error(getSafeErrorMessage(error, 'Unable to submit your bid.'));
+    } finally {
+      bidLock.current = false;
+      setIsSubmittingBid(false);
+    }
   };
 
   useEffect(() => {
+    if (projectLoadState !== 'ready') return;
+
     const fetchMyApplications = async () => {
       try {
         const response = await axios.get(`${BASE_URI}/fetch-applications`);
-        setHasApplied(response.data.some((application) => application.project === params['id']));
+        setHasApplied(response.data.some((application) => (
+          application.project === params['id']
+          && ['Pending', 'Accepted'].includes(application.status)
+        )));
       } catch (error) {
-        console.log(error);
+        toast.error(getSafeErrorMessage(error, 'Unable to load your applications.'));
       }
     };
 
     fetchMyApplications();
-  }, [BASE_URI, params]);
+  }, [BASE_URI, params, projectLoadState]);
 
   const [projectLink, setProjectLink] = useState('');
   const [manualLink, setManualLink] = useState('');
   const [submissionDescription, setSubmissionDescription] = useState('');
+  const [isSubmittingProject, setIsSubmittingProject] = useState(false);
 
   const handleProjectSubmission = async () => {
-    await axios.post(`${BASE_URI}/submit-project`, { projectId, projectLink, manualLink, submissionDescription }).then(
-      () => {
-        setProjectLink('');
-        setManualLink('');
-        setSubmissionDescription('');
-        alert("submission successful!!");
-      }
-    ).catch(() => {
-      alert("submission failed!! Try again!");
-    });
+    if (isSubmittingProject) return;
+    setIsSubmittingProject(true);
+    try {
+      await axios.post(`${BASE_URI}/submit-project`, { projectId, projectLink, manualLink, submissionDescription });
+      setProjectLink('');
+      setManualLink('');
+      setSubmissionDescription('');
+      const refreshedProject = await fetchProject(params['id']);
+      if (refreshedProject) toast.success('Project submitted successfully.');
+    } catch (error) {
+      toast.error(getSafeErrorMessage(error, 'Unable to submit the project.'));
+    } finally {
+      setIsSubmittingProject(false);
+    }
   };
 
   const [message, setMessage] = useState('');
@@ -105,11 +133,12 @@ const ProjectData = () => {
   const [chats, setChats] = useState();
 
   const fetchChats = async () => {
-    await axios.get(`${BASE_URI}/fetch-chats/${params['id']}`).then(
-      (response) => {
-        setChats(response.data);
-      }
-    );
+    try {
+      const response = await axios.get(`${BASE_URI}/fetch-chats/${params['id']}`);
+      setChats(response.data);
+    } catch (error) {
+      toast.error(getSafeErrorMessage(error, 'Unable to load chat messages.'));
+    }
   };
 
   useEffect(() => {
@@ -135,10 +164,20 @@ const ProjectData = () => {
     };
   }, [socket, params, canAccessChat]);
 
+  if (projectLoadState === 'loading') {
+    return <div className="theme-page-shell m-3 rounded-2xl p-4 text-center theme-muted-text">Loading project...</div>;
+  }
+
+  if (projectLoadState === 'not-found') {
+    return <div className="theme-page-shell m-3 rounded-2xl p-4 text-center theme-muted-text">Project not found.</div>;
+  }
+
+  if (projectLoadState === 'error') {
+    return <div className="theme-page-shell m-3 rounded-2xl p-4 text-center theme-muted-text">Unable to load this project. Please try again.</div>;
+  }
+
   return (
-    <>
-      {project ? (
-        <div className="theme-page-shell page-scroll-frame m-3 flex flex-col gap-5 rounded-2xl p-4 sm:m-5 sm:p-5 lg:flex-row">
+    <div className="theme-page-shell page-scroll-frame m-3 flex flex-col gap-5 rounded-2xl p-4 sm:m-5 sm:p-5 lg:flex-row">
           <div className="relative flex w-full flex-col gap-5 lg:w-2/3">
             <div className='theme-card flex min-h-[150px] flex-1 flex-col overflow-auto rounded-xl p-4 scrollbar-hide'>
               <h3 className='theme-heading mb-1 text-lg font-bold'>{project.title}</h3>
@@ -173,7 +212,7 @@ const ProjectData = () => {
                   <label htmlFor="description" className="theme-heading mb-2 block text-sm font-medium">Describe your proposal</label>
                   <textarea onChange={(e) => setProposal(e.target.value)} value={proposal} id="description" rows="4" className="theme-textarea block w-full rounded-xl p-2.5 text-sm" placeholder="Write your proposal here..."></textarea>
                 </div>
-                {!hasApplied ? <button className='theme-button-primary px-4 py-2 font-bold' onClick={handleBidding}>Post Bid</button> : ""}
+                {!hasApplied ? <button className='theme-button-primary px-4 py-2 font-bold disabled:cursor-not-allowed disabled:opacity-60' disabled={isSubmittingBid} onClick={handleBidding}>{isSubmittingBid ? 'Submitting...' : 'Post Bid'}</button> : ""}
                 {hasApplied ? <button className='theme-button-muted px-4 py-2 font-bold' disabled>Already bidded</button> : ""}
               </div>
             ) : ""}
@@ -202,7 +241,7 @@ const ProjectData = () => {
                     {project.submission ? (
                       <button className='theme-button-muted px-4 py-2 font-bold' disabled>Already submitted</button>
                     ) : (
-                      <button className='theme-button-primary disabled:cursor-not-allowed px-4 py-2 font-bold' disabled={projectLink.length < 3 || manualLink.length < 3} onClick={handleProjectSubmission}>Submit project</button>
+                      <button className='theme-button-primary disabled:cursor-not-allowed px-4 py-2 font-bold' disabled={isSubmittingProject || projectLink.length < 3 || manualLink.length < 3} onClick={handleProjectSubmission}>{isSubmittingProject ? 'Submitting...' : 'Submit project'}</button>
                     )}
                   </>
                 )}
@@ -240,9 +279,7 @@ const ProjectData = () => {
               <i>Chat will be enabled if the project is assigned to you!!</i>
             )}
           </div>
-        </div>
-      ) : ""}
-    </>
+    </div>
   );
 };
 

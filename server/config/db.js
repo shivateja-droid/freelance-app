@@ -28,4 +28,10 @@ const connectDB = async () => {
   }
 };
 
+export const disconnectDB = async () => {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.disconnect();
+  }
+};
+
 export default connectDB;

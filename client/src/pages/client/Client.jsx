@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,25 +6,32 @@ const Client = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [projects, setProjects] = useState([]);
   const [displayProjects, setDisplayProjects] = useState([]);
+  const hasFetchedProjects = useRef(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Client Dashboard - KaamSetu";
-    fetchProjects();
+    if (!hasFetchedProjects.current && localStorage.getItem('token')) {
+      hasFetchedProjects.current = true;
+      fetchProjects();
+    }
   }, []);
 
   const fetchProjects = async () => {
     const BASE_URI = import.meta.env.VITE_API_URL;
-    await axios.get(`${BASE_URI}/fetch-projects`).then(
-      (response) => {
-        const pros = response.data.filter(pro => pro.client === localStorage.getItem('userId'));
-        setProjects(pros);
-        setDisplayProjects(pros.reverse());
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const response = await axios.get(`${BASE_URI}/fetch-projects`);
+      const ownProjects = response.data.filter((project) => project.client === localStorage.getItem('userId'));
+      setProjects(ownProjects);
+      setDisplayProjects([...ownProjects].reverse());
+    } catch (error) {
+      if (error.response?.status !== 401) {
+        console.error('Unable to load client projects', error);
       }
-    ).catch((err) => {
-      console.log(err);
-      fetchProjects();
-    });
+    }
   };
 
   const handleFilter = async (status) => {

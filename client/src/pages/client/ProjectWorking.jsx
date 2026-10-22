@@ -1,6 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'sonner';
+import { getSafeErrorMessage } from '../../utils/notifications.js';
 import { GeneralContext } from '../../context/GeneralContext';
 
 const ProjectWorking = () => {
@@ -9,13 +11,33 @@ const ProjectWorking = () => {
   const BASE_URI = import.meta.env.VITE_API_URL;
 
   const [project, setProject] = useState();
+  const [projectLoadState, setProjectLoadState] = useState('loading');
+  const [pendingDecision, setPendingDecision] = useState(false);
+  const decisionLock = useRef(false);
   const canAccessChat = project?.client === localStorage.getItem('userId') && Boolean(project?.freelancer);
+
+  const fetchProject = useCallback(async (id) => {
+    setProjectLoadState('loading');
+    setProject(undefined);
+    try {
+      const response = await axios.get(`${BASE_URI}/fetch-project/${id}`);
+      setProject(response.data);
+      setProjectLoadState('ready');
+      return response.data;
+    } catch (error) {
+      setProjectLoadState(error?.response?.status === 404 ? 'not-found' : 'error');
+      toast.error(error?.response?.status === 404
+        ? 'Project not found.'
+        : getSafeErrorMessage(error, 'Unable to load this project.'));
+      return null;
+    }
+  }, [BASE_URI]);
 
   useEffect(() => { document.title = "Project Working - KaamSetu"; }, []);
 
   useEffect(() => {
     fetchProject(params['id']);
-  }, [params]);
+  }, [fetchProject, params]);
 
   const joinSocketRoom = async () => {
     if (!socket) {
@@ -25,36 +47,36 @@ const ProjectWorking = () => {
     socket.emit("join-chat-room-client", { projectId: params['id'] });
   };
 
-  const fetchProject = async (id) => {
-    await axios.get(`${BASE_URI}/fetch-project/${id}`).then(
-      (response) => {
-        setProject(response.data);
-      }
-    ).catch((err) => {
-      console.log(err);
-    });
-  };
-
   const handleApproveSubmission = async () => {
-    await axios.get(`${BASE_URI}/approve-submission/${params['id']}`).then(
-      () => {
-        fetchProject(params['id']);
-        alert("Submission approved!!");
-      }
-    ).catch((err) => {
-      console.log(err);
-    });
+    if (decisionLock.current) return;
+    decisionLock.current = true;
+    setPendingDecision(true);
+    try {
+      await axios.get(`${BASE_URI}/approve-submission/${params['id']}`);
+      const refreshedProject = await fetchProject(params['id']);
+      if (refreshedProject) toast.success('Submission approved.');
+    } catch (error) {
+      toast.error(getSafeErrorMessage(error, 'Unable to approve the submission.'));
+    } finally {
+      decisionLock.current = false;
+      setPendingDecision(false);
+    }
   };
 
   const handleRejectSubmission = async () => {
-    await axios.get(`${BASE_URI}/reject-submission/${params['id']}`).then(
-      () => {
-        fetchProject(params['id']);
-        alert("Submission rejected!!");
-      }
-    ).catch((err) => {
-      console.log(err);
-    });
+    if (decisionLock.current) return;
+    decisionLock.current = true;
+    setPendingDecision(true);
+    try {
+      await axios.get(`${BASE_URI}/reject-submission/${params['id']}`);
+      const refreshedProject = await fetchProject(params['id']);
+      if (refreshedProject) toast.success('Submission rejected.');
+    } catch (error) {
+      toast.error(getSafeErrorMessage(error, 'Unable to reject the submission.'));
+    } finally {
+      decisionLock.current = false;
+      setPendingDecision(false);
+    }
   };
 
   const [message, setMessage] = useState('');
@@ -76,11 +98,12 @@ const ProjectWorking = () => {
 
   const [chats, setChats] = useState();
   const fetchChats = async () => {
-    await axios.get(`${BASE_URI}/fetch-chats/${params['id']}`).then(
-      (response) => {
-        setChats(response.data);
-      }
-    );
+    try {
+      const response = await axios.get(`${BASE_URI}/fetch-chats/${params['id']}`);
+      setChats(response.data);
+    } catch (error) {
+      toast.error(getSafeErrorMessage(error, 'Unable to load chat messages.'));
+    }
   };
 
   useEffect(() => {
@@ -106,10 +129,20 @@ const ProjectWorking = () => {
     };
   }, [socket, params, canAccessChat]);
 
+  if (projectLoadState === 'loading') {
+    return <div className="theme-page-shell m-3 rounded-2xl p-4 text-center theme-muted-text">Loading project...</div>;
+  }
+
+  if (projectLoadState === 'not-found') {
+    return <div className="theme-page-shell m-3 rounded-2xl p-4 text-center theme-muted-text">Project not found.</div>;
+  }
+
+  if (projectLoadState === 'error') {
+    return <div className="theme-page-shell m-3 rounded-2xl p-4 text-center theme-muted-text">Unable to load this project. Please try again.</div>;
+  }
+
   return (
-    <>
-      {project ? (
-        <div className="theme-page-shell page-scroll-frame m-3 flex flex-col gap-5 rounded-2xl p-4 sm:m-5 sm:p-5 lg:flex-row">
+    <div className="theme-page-shell page-scroll-frame m-3 flex flex-col gap-5 rounded-2xl p-4 sm:m-5 sm:p-5 lg:flex-row">
           <div className="relative flex w-full flex-col gap-5 lg:w-2/3">
             <div className='theme-card flex min-h-[150px] flex-col overflow-auto rounded-xl p-4 scrollbar-hide'>
               <h3 className='theme-heading mb-3 text-lg font-bold'>{project.title}</h3>
@@ -150,8 +183,8 @@ const ProjectWorking = () => {
                         <h5 className="theme-status-complete">project completed!!</h5>
                       ) : (
                         <div className="flex flex-col gap-2 sm:flex-row">
-                          <button className='theme-button-primary px-4 py-2' onClick={handleApproveSubmission}>Approve</button>
-                          <button className='theme-button-secondary px-4 py-2' onClick={handleRejectSubmission}>Reject</button>
+                          <button className='theme-button-primary px-4 py-2 disabled:cursor-not-allowed disabled:opacity-60' disabled={pendingDecision} onClick={handleApproveSubmission}>{pendingDecision ? 'Saving...' : 'Approve'}</button>
+                          <button className='theme-button-secondary px-4 py-2 disabled:cursor-not-allowed disabled:opacity-60' disabled={pendingDecision} onClick={handleRejectSubmission}>Reject</button>
                         </div>
                       )}
                     </div>
@@ -191,9 +224,7 @@ const ProjectWorking = () => {
               <i>Chat will be enabled if the freelancer accepts the project!!</i>
             )}
           </div>
-        </div>
-      ) : ""}
-    </>
+    </div>
   );
 };
 
